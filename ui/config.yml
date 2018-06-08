@@ -1,0 +1,4 @@
+logging:
+  level: INFO
+  loggers:
+    nz.co.fit.projectmanagement: DEBUG
