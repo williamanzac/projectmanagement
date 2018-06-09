@@ -40,7 +40,7 @@ public class ProjectDAOTest {
 	}
 
 	@Test
-	public void createProject() {
+	public void createProject() throws Exception {
 		final ProjectCategoryModel categoryModel = new ProjectCategoryModel();
 		categoryModel.setName("foo");
 		final ProjectCategoryModel category = categoryDAO.upsert(categoryModel);
@@ -62,7 +62,7 @@ public class ProjectDAOTest {
 	}
 
 	@Test
-	public void createVersionForProject() {
+	public void createVersionForProject() throws Exception {
 		final Long projectId = database.inTransaction(() -> {
 			final ProjectCategoryModel categoryModel = new ProjectCategoryModel();
 			categoryModel.setName("foo");
@@ -83,13 +83,17 @@ public class ProjectDAOTest {
 		assertThat(projectId, notNullValue());
 
 		database.inTransaction(() -> {
-			final ProjectModel projectModel = projectDAO.read(projectId);
-			final VersionModel versionModel = new VersionModel();
-			versionModel.setName("1.0.0");
-			versionModel.setPriority(1);
-			versionDAO.upsert(versionModel);
-			projectModel.getVersions().add(versionModel);
-			projectDAO.upsert(projectModel);
+			try {
+				final ProjectModel projectModel = projectDAO.read(projectId);
+				final VersionModel versionModel = new VersionModel();
+				versionModel.setName("1.0.0");
+				versionModel.setPriority(1);
+				versionDAO.upsert(versionModel);
+				projectModel.getVersions().add(versionModel);
+				projectDAO.upsert(projectModel);
+			} catch (final DAOException e) {
+				e.printStackTrace();
+			}
 		});
 
 		final ProjectModel actualProject = projectDAO.read(projectId);
@@ -102,7 +106,7 @@ public class ProjectDAOTest {
 	}
 
 	@Test
-	public void createComponentForProject() {
+	public void createComponentForProject() throws Exception {
 		final Long projectId = database.inTransaction(() -> {
 			final ProjectCategoryModel categoryModel = new ProjectCategoryModel();
 			categoryModel.setName("foo");
@@ -123,12 +127,16 @@ public class ProjectDAOTest {
 		assertThat(projectId, notNullValue());
 
 		database.inTransaction(() -> {
-			final ProjectModel projectModel = projectDAO.read(projectId);
-			final ComponentModel componentModel = new ComponentModel();
-			componentModel.setName("bar");
-			componentDAO.upsert(componentModel);
-			projectModel.getComponents().add(componentModel);
-			projectDAO.upsert(projectModel);
+			try {
+				final ProjectModel projectModel = projectDAO.read(projectId);
+				final ComponentModel componentModel = new ComponentModel();
+				componentModel.setName("bar");
+				componentDAO.upsert(componentModel);
+				projectModel.getComponents().add(componentModel);
+				projectDAO.upsert(projectModel);
+			} catch (final DAOException e) {
+				e.printStackTrace();
+			}
 		});
 
 		final ProjectModel actualProject = projectDAO.read(projectId);
@@ -141,7 +149,7 @@ public class ProjectDAOTest {
 	}
 
 	@Test
-	public void listProjectsByCategory() {
+	public void listProjectsByCategory() throws Exception {
 		final Long categoryId = database.inTransaction(() -> {
 			final ProjectCategoryModel categoryModel = new ProjectCategoryModel();
 			categoryModel.setName("foo");

@@ -8,8 +8,7 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "permissions")
-public class PermissionModel extends BaseIdableModel {
-
+public class PermissionModel extends BaseModel {
 	@Column
 	private String name;
 

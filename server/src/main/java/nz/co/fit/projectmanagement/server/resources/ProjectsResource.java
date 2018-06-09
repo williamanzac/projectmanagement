@@ -25,6 +25,7 @@ import nz.co.fit.projectmanagement.server.api.Version;
 import nz.co.fit.projectmanagement.server.core.ComponentService;
 import nz.co.fit.projectmanagement.server.core.HistoryService;
 import nz.co.fit.projectmanagement.server.core.ProjectService;
+import nz.co.fit.projectmanagement.server.core.ServiceException;
 import nz.co.fit.projectmanagement.server.core.VersionService;
 import nz.co.fit.projectmanagement.server.dao.entities.ComponentModel;
 import nz.co.fit.projectmanagement.server.dao.entities.HistoryModel;
@@ -54,14 +55,23 @@ public class ProjectsResource {
 	@PermitAll
 	@UnitOfWork
 	public List<BaseIdable> listAllProjects() throws ResourceException {
-		return projectService.listAll().stream().map(ModelUtilities::toIdable).collect(toList());
+		try {
+			return projectService.listProjects().stream().map(ModelUtilities::toIdable).collect(toList());
+		} catch (final ServiceException e) {
+			throw new ResourceException(e);
+		}
 	}
 
 	@POST
 	@UnitOfWork
 	public Project createProject(final Project project) throws ResourceException {
 		final ProjectModel model = ModelUtilities.convert(project, ProjectModel.class);
-		final ProjectModel createProject = projectService.createProject(model);
+		ProjectModel createProject;
+		try {
+			createProject = projectService.createProject(model);
+		} catch (final ServiceException e) {
+			throw new ResourceException(e);
+		}
 		final Project retProject = ModelUtilities.convert(createProject, Project.class);
 		return retProject;
 	}
@@ -72,7 +82,12 @@ public class ProjectsResource {
 	public Project updateProject(final @PathParam("id") Long id, final Project project) throws ResourceException {
 		project.setId(id); // use the id from the path as the id field will be ignored from the JSON
 		final ProjectModel model = ModelUtilities.convert(project, ProjectModel.class);
-		final ProjectModel createProject = projectService.updateProject(model);
+		ProjectModel createProject;
+		try {
+			createProject = projectService.updateProject(model);
+		} catch (final ServiceException e) {
+			throw new ResourceException(e);
+		}
 		final Project retProject = ModelUtilities.convert(createProject, Project.class);
 		return retProject;
 	}
@@ -81,7 +96,12 @@ public class ProjectsResource {
 	@Path("/{id}")
 	@UnitOfWork
 	public Project readProject(final @PathParam("id") Long id) throws ResourceException {
-		final ProjectModel project = projectService.readProject(id);
+		ProjectModel project;
+		try {
+			project = projectService.readProject(id);
+		} catch (final ServiceException e) {
+			throw new ResourceException(e);
+		}
 		final Project retProject = ModelUtilities.convert(project, Project.class);
 		return retProject;
 	}
@@ -89,8 +109,12 @@ public class ProjectsResource {
 	@DELETE
 	@Path("/{id}")
 	@UnitOfWork
-	public void deleteProject(final @PathParam("id") Long id) {
-		projectService.deleteProject(id);
+	public void deleteProject(final @PathParam("id") Long id) throws ResourceException {
+		try {
+			projectService.deleteProject(id);
+		} catch (final ServiceException e) {
+			throw new ResourceException(e);
+		}
 	}
 
 	@GET
@@ -113,8 +137,12 @@ public class ProjectsResource {
 	@PermitAll
 	@UnitOfWork
 	public List<BaseIdable> listAllVersions(final @PathParam("id") Long projectId) throws ResourceException {
-		return projectService.readProject(projectId).getVersions().stream().map(ModelUtilities::toIdable)
-				.collect(toList());
+		try {
+			return projectService.readProject(projectId).getVersions().stream().map(ModelUtilities::toIdable)
+					.collect(toList());
+		} catch (final ServiceException e) {
+			throw new ResourceException(e);
+		}
 	}
 
 	@POST
@@ -122,7 +150,12 @@ public class ProjectsResource {
 	@UnitOfWork
 	public Version createVersion(final @PathParam("id") Long projectId, final Version version)
 			throws ResourceException {
-		final ProjectModel projModel = projectService.readProject(projectId);
+		ProjectModel projModel;
+		try {
+			projModel = projectService.readProject(projectId);
+		} catch (final ServiceException e) {
+			throw new ResourceException(e);
+		}
 		final List<VersionModel> versions = projModel.getVersions();
 		final long matchingName = versions.stream().filter(v -> v.getName().equals(version.getName())).count();
 		if (matchingName > 0) {
@@ -133,8 +166,13 @@ public class ProjectsResource {
 		final int length = versions.size();
 		model.setPriority(length + 1);
 		versions.add(model);
-		final VersionModel createVersion = versionService.createVersion(model);
-		projectService.updateProject(projModel);
+		final VersionModel createVersion;
+		try {
+			createVersion = versionService.createVersion(model);
+			projectService.updateProject(projModel);
+		} catch (final ServiceException e) {
+			throw new ResourceException(e);
+		}
 		final Version retVersion = ModelUtilities.convert(createVersion, Version.class);
 		return retVersion;
 	}
@@ -144,8 +182,12 @@ public class ProjectsResource {
 	@PermitAll
 	@UnitOfWork
 	public List<BaseIdable> listAllComponents(final @PathParam("id") Long projectId) throws ResourceException {
-		return projectService.readProject(projectId).getComponents().stream().map(ModelUtilities::toIdable)
-				.collect(toList());
+		try {
+			return projectService.readProject(projectId).getComponents().stream().map(ModelUtilities::toIdable)
+					.collect(toList());
+		} catch (final ServiceException e) {
+			throw new ResourceException(e);
+		}
 	}
 
 	@POST
@@ -153,7 +195,12 @@ public class ProjectsResource {
 	@UnitOfWork
 	public Component createComponent(final @PathParam("id") Long projectId, final Component component)
 			throws ResourceException {
-		final ProjectModel projModel = projectService.readProject(projectId);
+		ProjectModel projModel;
+		try {
+			projModel = projectService.readProject(projectId);
+		} catch (final ServiceException e) {
+			throw new ResourceException(e);
+		}
 		final List<ComponentModel> components = projModel.getComponents();
 		final long matchingName = components.stream().filter(v -> v.getName().equals(component.getName())).count();
 		if (matchingName > 0) {
@@ -162,8 +209,13 @@ public class ProjectsResource {
 
 		final ComponentModel model = ModelUtilities.convert(component, ComponentModel.class);
 		components.add(model);
-		final ComponentModel createComponent = componentService.createComponent(model);
-		projectService.updateProject(projModel);
+		final ComponentModel createComponent;
+		try {
+			createComponent = componentService.createComponent(model);
+			projectService.updateProject(projModel);
+		} catch (final ServiceException e) {
+			throw new ResourceException(e);
+		}
 		final Component retComponent = ModelUtilities.convert(createComponent, Component.class);
 		return retComponent;
 	}

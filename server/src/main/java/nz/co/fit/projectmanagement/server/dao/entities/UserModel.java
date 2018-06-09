@@ -10,7 +10,7 @@ import nz.co.fit.projectmanagement.server.dao.AuthType;
 
 @Entity
 @Table(name = "user")
-public class UserModel extends BaseIdableModel {
+public class UserModel extends BaseModel {
 	@Column
 	private String email;
 	@Column

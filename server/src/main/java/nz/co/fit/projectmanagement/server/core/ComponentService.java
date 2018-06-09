@@ -6,6 +6,7 @@ import org.greenrobot.eventbus.EventBus;
 import org.jvnet.hk2.annotations.Service;
 
 import nz.co.fit.projectmanagement.server.dao.ComponentDAO;
+import nz.co.fit.projectmanagement.server.dao.DAOException;
 import nz.co.fit.projectmanagement.server.dao.HistoryEvent;
 import nz.co.fit.projectmanagement.server.dao.entities.ComponentModel;
 
@@ -21,16 +22,29 @@ public class ComponentService {
 		this.historyService = historyService;
 	}
 
-	public ComponentModel createComponent(final ComponentModel component) {
-		return componentDAO.upsert(component);
+	public ComponentModel createComponent(final ComponentModel component) throws ServiceException {
+		try {
+			return componentDAO.upsert(component);
+		} catch (final DAOException e) {
+			throw new ServiceException(e);
+		}
 	}
 
-	public ComponentModel readComponent(final Long id) {
-		return componentDAO.read(id);
+	public ComponentModel readComponent(final Long id) throws ServiceException {
+		try {
+			return componentDAO.read(id);
+		} catch (final DAOException e) {
+			throw new ServiceException(e);
+		}
 	}
 
-	public ComponentModel updateComponent(final ComponentModel component) {
-		final ComponentModel existing = componentDAO.read(component.getId());
+	public ComponentModel updateComponent(final ComponentModel component) throws ServiceException {
+		ComponentModel existing;
+		try {
+			existing = componentDAO.read(component.getId());
+		} catch (final DAOException e) {
+			throw new ServiceException(e);
+		}
 		if (component.getDescription() != null) {
 			if (!component.getDescription().equals(existing.getDescription())) {
 				EventBus.getDefault().post(new HistoryEvent("description", existing.getDescription(),
@@ -45,11 +59,19 @@ public class ComponentService {
 			}
 			existing.setName(component.getName());
 		}
-		return componentDAO.upsert(existing);
+		try {
+			return componentDAO.upsert(existing);
+		} catch (final DAOException e) {
+			throw new ServiceException(e);
+		}
 	}
 
-	public void deleteComponent(final Long id) {
+	public void deleteComponent(final Long id) throws ServiceException {
 		historyService.deleteHistoryForObject(id, ComponentModel.class);
-		componentDAO.delete(id);
+		try {
+			componentDAO.delete(id);
+		} catch (final DAOException e) {
+			throw new ServiceException(e);
+		}
 	}
 }

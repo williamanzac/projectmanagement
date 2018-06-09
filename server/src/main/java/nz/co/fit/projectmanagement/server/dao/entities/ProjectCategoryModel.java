@@ -8,7 +8,7 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "projectCategory")
-public class ProjectCategoryModel extends BaseIdableModel {
+public class ProjectCategoryModel extends BaseModel {
 	@Column(unique = true, nullable = false)
 	private String name;
 	@Column

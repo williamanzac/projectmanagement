@@ -23,18 +23,26 @@ public class HistoryService {
 
 	public HistoryModel createHistory(final HistoryModel history) throws ServiceException {
 		try {
-			return historyDAO.create(history);
+			return historyDAO.upsert(history);
 		} catch (final DAOException e) {
 			throw new ServiceException(e);
 		}
 	}
 
-	public HistoryModel readHistory(final Long id) {
-		return historyDAO.read(id);
+	public HistoryModel readHistory(final Long id) throws ServiceException {
+		try {
+			return historyDAO.read(id);
+		} catch (final DAOException e) {
+			throw new ServiceException(e);
+		}
 	}
 
-	public void deleteHistory(final Long id) {
-		historyDAO.delete(id);
+	public void deleteHistory(final Long id) throws ServiceException {
+		try {
+			historyDAO.delete(id);
+		} catch (final DAOException e) {
+			throw new ServiceException(e);
+		}
 	}
 
 	public <E extends IdableModel> void deleteHistoryForObject(final Long objectId, final Class<E> entityClass) {

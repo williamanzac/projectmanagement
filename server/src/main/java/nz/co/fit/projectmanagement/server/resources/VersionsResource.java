@@ -15,6 +15,7 @@ import javax.ws.rs.core.MediaType;
 
 import io.dropwizard.hibernate.UnitOfWork;
 import nz.co.fit.projectmanagement.server.api.Version;
+import nz.co.fit.projectmanagement.server.core.ServiceException;
 import nz.co.fit.projectmanagement.server.core.VersionService;
 import nz.co.fit.projectmanagement.server.dao.entities.VersionModel;
 
@@ -36,7 +37,12 @@ public class VersionsResource {
 	public Version updateVersion(final @PathParam("id") Long id, final Version version) throws ResourceException {
 		version.setId(id); // use the id from the path as the id field will be ignored from the JSON
 		final VersionModel model = ModelUtilities.convert(version, VersionModel.class);
-		final VersionModel createVersion = versionService.updateVersion(model);
+		VersionModel createVersion;
+		try {
+			createVersion = versionService.updateVersion(model);
+		} catch (final ServiceException e) {
+			throw new ResourceException(e);
+		}
 		final Version retVersion = ModelUtilities.convert(createVersion, Version.class);
 		return retVersion;
 	}
@@ -45,7 +51,12 @@ public class VersionsResource {
 	@Path("/{id}")
 	@UnitOfWork
 	public Version readVersion(final @PathParam("id") Long id) throws ResourceException {
-		final VersionModel version = versionService.readVersion(id);
+		VersionModel version;
+		try {
+			version = versionService.readVersion(id);
+		} catch (final ServiceException e) {
+			throw new ResourceException(e);
+		}
 		final Version retVersion = ModelUtilities.convert(version, Version.class);
 		return retVersion;
 	}
@@ -53,55 +64,79 @@ public class VersionsResource {
 	@DELETE
 	@Path("/{id}")
 	@UnitOfWork
-	public void deleteVersion(final @PathParam("id") Long id) {
-		versionService.deleteVersion(id);
+	public void deleteVersion(final @PathParam("id") Long id) throws ResourceException {
+		try {
+			versionService.deleteVersion(id);
+		} catch (final ServiceException e) {
+			throw new ResourceException(e);
+		}
 	}
 
 	@POST
 	@Path("/{id}/release")
 	@UnitOfWork
 	public void releaseVersion(final @PathParam("id") Long id) throws ResourceException {
-		final VersionModel version = versionService.readVersion(id);
-		if (version.getReleasedDate() != null) {
-			throw new ResourceException("This version has already been released.");
+		VersionModel version;
+		try {
+			version = versionService.readVersion(id);
+			if (version.getReleasedDate() != null) {
+				throw new ResourceException("This version has already been released.");
+			}
+			version.setReleasedDate(new Date());
+			versionService.updateVersion(version);
+		} catch (final ServiceException e) {
+			throw new ResourceException(e);
 		}
-		version.setReleasedDate(new Date());
-		versionService.updateVersion(version);
 	}
 
 	@POST
 	@Path("/{id}/unrelease")
 	@UnitOfWork
 	public void unreleaseVersion(final @PathParam("id") Long id) throws ResourceException {
-		final VersionModel version = versionService.readVersion(id);
-		if (version.getReleasedDate() == null) {
-			throw new ResourceException("This version has not been released.");
+		VersionModel version;
+		try {
+			version = versionService.readVersion(id);
+			if (version.getReleasedDate() == null) {
+				throw new ResourceException("This version has not been released.");
+			}
+			version.setReleasedDate(null);
+			versionService.updateVersion(version);
+		} catch (final ServiceException e) {
+			throw new ResourceException(e);
 		}
-		version.setReleasedDate(null);
-		versionService.updateVersion(version);
 	}
 
 	@POST
 	@Path("/{id}/archive")
 	@UnitOfWork
 	public void archiveVersion(final @PathParam("id") Long id) throws ResourceException {
-		final VersionModel version = versionService.readVersion(id);
-		if (version.getArchivedDate() != null) {
-			throw new ResourceException("This version has already been archived.");
+		VersionModel version;
+		try {
+			version = versionService.readVersion(id);
+			if (version.getArchivedDate() != null) {
+				throw new ResourceException("This version has already been archived.");
+			}
+			version.setArchivedDate(new Date());
+			versionService.updateVersion(version);
+		} catch (final ServiceException e) {
+			throw new ResourceException(e);
 		}
-		version.setArchivedDate(new Date());
-		versionService.updateVersion(version);
 	}
 
 	@POST
 	@Path("/{id}/unarchive")
 	@UnitOfWork
 	public void unarchiveVersion(final @PathParam("id") Long id) throws ResourceException {
-		final VersionModel version = versionService.readVersion(id);
-		if (version.getArchivedDate() == null) {
-			throw new ResourceException("This version has not been archived.");
+		VersionModel version;
+		try {
+			version = versionService.readVersion(id);
+			if (version.getArchivedDate() == null) {
+				throw new ResourceException("This version has not been archived.");
+			}
+			version.setArchivedDate(null);
+			versionService.updateVersion(version);
+		} catch (final ServiceException e) {
+			throw new ResourceException(e);
 		}
-		version.setArchivedDate(null);
-		versionService.updateVersion(version);
 	}
 }

@@ -21,6 +21,7 @@ import io.dropwizard.hibernate.UnitOfWork;
 import nz.co.fit.projectmanagement.server.api.BaseIdable;
 import nz.co.fit.projectmanagement.server.api.User;
 import nz.co.fit.projectmanagement.server.auth.CustomAuthUser;
+import nz.co.fit.projectmanagement.server.core.ServiceException;
 import nz.co.fit.projectmanagement.server.core.UserService;
 import nz.co.fit.projectmanagement.server.dao.entities.UserModel;
 
@@ -39,8 +40,12 @@ public class UsersResource {
 	@GET
 	@PermitAll
 	@UnitOfWork
-	public List<BaseIdable> listAllUsers() {
-		return userService.listAll().stream().map(ModelUtilities::toIdable).collect(toList());
+	public List<BaseIdable> listAllUsers() throws ResourceException {
+		try {
+			return userService.listAll().stream().map(ModelUtilities::toIdable).collect(toList());
+		} catch (final ServiceException e) {
+			throw new ResourceException(e);
+		}
 	}
 
 	@POST
@@ -48,7 +53,12 @@ public class UsersResource {
 	@PermitAll
 	public User createUser(final User user, @Auth final CustomAuthUser authUser) throws ResourceException {
 		final UserModel model = ModelUtilities.convert(user, UserModel.class);
-		final UserModel createUser = userService.createUser(model);
+		UserModel createUser;
+		try {
+			createUser = userService.createUser(model);
+		} catch (final ServiceException e) {
+			throw new ResourceException(e);
+		}
 		final User retUser = ModelUtilities.convert(createUser, User.class);
 		return retUser;
 	}
@@ -59,7 +69,12 @@ public class UsersResource {
 	public User updateUser(final @PathParam("id") Long id, final User user) throws ResourceException {
 		user.setId(id); // use the id from the path as the id field will be ignored from the JSON
 		final UserModel model = ModelUtilities.convert(user, UserModel.class);
-		final UserModel createUser = userService.updateUser(model);
+		UserModel createUser;
+		try {
+			createUser = userService.updateUser(model);
+		} catch (final ServiceException e) {
+			throw new ResourceException(e);
+		}
 		final User retUser = ModelUtilities.convert(createUser, User.class);
 		return retUser;
 	}
@@ -68,7 +83,12 @@ public class UsersResource {
 	@Path("/{id}")
 	@UnitOfWork
 	public User readUser(final @PathParam("id") Long id) throws ResourceException {
-		final UserModel user = userService.readUser(id);
+		UserModel user;
+		try {
+			user = userService.readUser(id);
+		} catch (final ServiceException e) {
+			throw new ResourceException(e);
+		}
 		final User retUser = ModelUtilities.convert(user, User.class);
 		return retUser;
 	}
@@ -77,6 +97,10 @@ public class UsersResource {
 	@Path("/{id}")
 	@UnitOfWork
 	public void deleteUser(final @PathParam("id") Long id) throws ResourceException {
-		userService.deleteUser(id);
+		try {
+			userService.deleteUser(id);
+		} catch (final ServiceException e) {
+			throw new ResourceException(e);
+		}
 	}
 }

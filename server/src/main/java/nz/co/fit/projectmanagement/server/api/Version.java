@@ -8,7 +8,7 @@ import com.fasterxml.jackson.annotation.JsonProperty.Access;
 
 import nz.co.fit.projectmanagement.server.dao.VersionStatus;
 
-public class Version extends BaseIdable {
+public class Version extends BaseModel {
 	private String name;
 	private String description;
 	private VersionStatus status;
@@ -119,6 +119,6 @@ public class Version extends BaseIdable {
 	}
 
 	public void setPriority(final Integer order) {
-		this.priority = order;
+		priority = order;
 	}
 }

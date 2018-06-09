@@ -6,10 +6,9 @@ import javax.annotation.Resource;
 import javax.inject.Inject;
 import javax.ws.rs.core.SecurityContext;
 
-import org.greenrobot.eventbus.EventBus;
 import org.jvnet.hk2.annotations.Service;
 
-import nz.co.fit.projectmanagement.server.dao.HistoryEvent;
+import nz.co.fit.projectmanagement.server.dao.DAOException;
 import nz.co.fit.projectmanagement.server.dao.ProjectDAO;
 import nz.co.fit.projectmanagement.server.dao.entities.ProjectCategoryModel;
 import nz.co.fit.projectmanagement.server.dao.entities.ProjectModel;
@@ -40,11 +39,15 @@ public class ProjectService {
 		this.historyService = historyService;
 	}
 
-	public List<ProjectModel> listAll() {
-		return projectDAO.listAll();
+	public List<ProjectModel> listProjects() throws ServiceException {
+		try {
+			return projectDAO.list();
+		} catch (final DAOException e) {
+			throw new ServiceException(e);
+		}
 	}
 
-	public ProjectModel createProject(final ProjectModel project) {
+	public ProjectModel createProject(final ProjectModel project) throws ServiceException {
 		// assume the project does not have an id
 		// if (!project.getVersions().isEmpty()) {
 		// // some versions have been passed in, so make sure that they are upserted first.
@@ -65,96 +68,104 @@ public class ProjectService {
 			final UserModel user = userService.readUser(project.getProjectLead().getId());
 			project.setProjectLead(user);
 		}
-		return projectDAO.upsert(project);
+		try {
+			return projectDAO.upsert(project);
+		} catch (final DAOException e) {
+			throw new ServiceException(e);
+		}
 	}
 
-	public ProjectModel readProject(final Long id) {
-		return projectDAO.read(id);
+	public ProjectModel readProject(final Long id) throws ServiceException {
+		try {
+			return projectDAO.read(id);
+		} catch (final DAOException e) {
+			throw new ServiceException(e);
+		}
 	}
 
-	public ProjectModel updateProject(final ProjectModel project) {
+	public ProjectModel updateProject(final ProjectModel project) throws ServiceException {
 		// assume the project does not have an id
 		if (!project.getVersions().isEmpty()) {
 			// some versions have been passed in, so make sure that they are upserted first.
 			project.getVersions().forEach(v -> {
-				if (v.getId() != null) {
-					versionService.updateVersion(v);
-				} else {
-					versionService.createVersion(v);
+				try {
+					if (v.getId() != null) {
+						versionService.updateVersion(v);
+					} else {
+						versionService.createVersion(v);
+					}
+				} catch (final ServiceException e) {
+					e.printStackTrace();
 				}
 			});
 		}
 		if (!project.getComponents().isEmpty()) {
-			// some versions have been passed in, so make sure that they are upserted first.
+			// some components have been passed in, so make sure that they are upserted first.
 			project.getComponents().forEach(c -> {
-				if (c.getId() != null) {
-					componentService.updateComponent(c);
-				} else {
-					componentService.createComponent(c);
+				try {
+					if (c.getId() != null) {
+						componentService.updateComponent(c);
+					} else {
+						componentService.createComponent(c);
+					}
+				} catch (final ServiceException e) {
+					e.printStackTrace();
 				}
 			});
 		}
 
-		final ProjectModel existingProject = projectDAO.read(project.getId());
-		// existingProject.setVersions(project.getVersions());
-		// existingProject.setComponents(project.getComponents());
-
+		// the data from the api will only be the id, so we need to read the whole object
 		if (project.getCategory() != null) {
 			final ProjectCategoryModel category = categoryService.readCategory(project.getCategory().getId());
-			if (category != existingProject.getCategory()) {
-				final String oldValue = existingProject.getCategory() != null
-						? String.valueOf(existingProject.getCategory().getId())
-						: null;
-				final String newValue = category != null ? String.valueOf(category.getId()) : null;
-				EventBus.getDefault().post(new HistoryEvent("category", oldValue, newValue, project));
-			}
-			existingProject.setCategory(category);
+			project.setCategory(category);
 		}
 		if (project.getProjectLead() != null) {
 			final UserModel user = userService.readUser(project.getProjectLead().getId());
-			if (user != existingProject.getProjectLead()) {
-				final String oldValue = existingProject.getProjectLead() != null
-						? String.valueOf(existingProject.getProjectLead().getId())
-						: null;
-				final String newValue = user != null ? String.valueOf(user.getId()) : null;
-				EventBus.getDefault().post(new HistoryEvent("projectLead", oldValue, newValue, project));
-			}
-			existingProject.setProjectLead(user);
+			project.setProjectLead(user);
 		}
-		if (project.getDescription() != null) {
-			if (!project.getDescription().equals(existingProject.getDescription())) {
-				EventBus.getDefault().post(new HistoryEvent("description", existingProject.getDescription(),
-						project.getDescription(), project));
-			}
-			existingProject.setDescription(project.getDescription());
+
+		try {
+			return projectDAO.upsert(project);
+		} catch (final DAOException e) {
+			throw new ServiceException(e);
 		}
-		if (project.getName() != null) {
-			if (!project.getName().equals(existingProject.getName())) {
-				EventBus.getDefault()
-						.post(new HistoryEvent("name", existingProject.getName(), project.getName(), project));
-			}
-			existingProject.setName(project.getName());
-		}
-		if (project.getUrl() != null) {
-			if (!project.getUrl().equals(existingProject.getUrl())) {
-				EventBus.getDefault()
-						.post(new HistoryEvent("url", existingProject.getUrl(), project.getUrl(), project));
-			}
-			existingProject.setUrl(project.getUrl());
-		}
-		return projectDAO.upsert(existingProject);
 	}
 
-	public void deleteProject(final Long id) {
-		final ProjectModel existingProject = projectDAO.read(id);
+	public void deleteProject(final Long id) throws ServiceException {
+		ProjectModel existingProject;
+		try {
+			existingProject = projectDAO.read(id);
+		} catch (final DAOException e) {
+			throw new ServiceException(e);
+		}
 		// delete the versions, components and history first
-		existingProject.getVersions().forEach(v -> versionService.deleteVersion(v.getId()));
-		existingProject.getComponents().forEach(c -> componentService.deleteComponent(c.getId()));
+		existingProject.getVersions().forEach(v -> {
+			try {
+				versionService.deleteVersion(v.getId());
+			} catch (final ServiceException e2) {
+				e2.printStackTrace();
+			}
+		});
+		existingProject.getComponents().forEach(c -> {
+			try {
+				componentService.deleteComponent(c.getId());
+			} catch (final ServiceException e1) {
+				e1.printStackTrace();
+			}
+		});
 		historyService.deleteHistoryForObject(id, ProjectModel.class);
-		projectDAO.delete(id);
+		try {
+			projectDAO.delete(id);
+		} catch (final DAOException e) {
+			throw new ServiceException(e);
+		}
 	}
 
-	public List<ProjectModel> listProjectsForCategory(final Long categoryId) {
-		return projectDAO.listProjectsForCategory(categoryId);
+	public List<ProjectModel> listProjectsForCategory(final Long categoryId) throws ServiceException {
+		try {
+			return projectDAO.listProjectsForCategory(categoryId);
+		} catch (final DAOException e) {
+			throw new ServiceException(e);
+		}
 	}
 }

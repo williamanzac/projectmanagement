@@ -14,6 +14,7 @@ import javax.ws.rs.core.MediaType;
 
 import io.dropwizard.hibernate.UnitOfWork;
 import nz.co.fit.projectmanagement.server.core.PermissionService;
+import nz.co.fit.projectmanagement.server.core.ServiceException;
 import nz.co.fit.projectmanagement.server.dao.entities.PermissionModel;
 
 @Path("/permissions")
@@ -31,7 +32,11 @@ public class PermissionsResource {
 	@GET
 	@PermitAll
 	@UnitOfWork
-	public List<String> listAllPermissions() {
-		return permissionService.listAll().stream().map(PermissionModel::getName).collect(toList());
+	public List<String> listAllPermissions() throws ResourceException {
+		try {
+			return permissionService.listAll().stream().map(PermissionModel::getName).collect(toList());
+		} catch (final ServiceException e) {
+			throw new ResourceException(e);
+		}
 	}
 }

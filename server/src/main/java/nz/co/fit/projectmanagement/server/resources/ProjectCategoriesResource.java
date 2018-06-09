@@ -44,14 +44,23 @@ public class ProjectCategoriesResource {
 	@PermitAll
 	@UnitOfWork
 	public List<BaseIdable> listAllProjects() throws ResourceException {
-		return categoryService.listAll().stream().map(ModelUtilities::toIdable).collect(toList());
+		try {
+			return categoryService.listAll().stream().map(ModelUtilities::toIdable).collect(toList());
+		} catch (final ServiceException e) {
+			throw new ResourceException(e);
+		}
 	}
 
 	@POST
 	@UnitOfWork
 	public ProjectCategory createCategory(final ProjectCategory category) throws ResourceException {
 		final ProjectCategoryModel model = ModelUtilities.convert(category, ProjectCategoryModel.class);
-		final ProjectCategoryModel createCategory = categoryService.createCategory(model);
+		ProjectCategoryModel createCategory;
+		try {
+			createCategory = categoryService.createCategory(model);
+		} catch (final ServiceException e) {
+			throw new ResourceException(e);
+		}
 		final ProjectCategory retCategory = ModelUtilities.convert(createCategory, ProjectCategory.class);
 		return retCategory;
 	}
@@ -63,7 +72,12 @@ public class ProjectCategoriesResource {
 			throws ResourceException {
 		category.setId(id); // use the id from the path as the id field will be ignored from the JSON
 		final ProjectCategoryModel model = ModelUtilities.convert(category, ProjectCategoryModel.class);
-		final ProjectCategoryModel createCategory = categoryService.updateCategory(model);
+		ProjectCategoryModel createCategory;
+		try {
+			createCategory = categoryService.updateCategory(model);
+		} catch (final ServiceException e) {
+			throw new ResourceException(e);
+		}
 		final ProjectCategory retCategory = ModelUtilities.convert(createCategory, ProjectCategory.class);
 		return retCategory;
 	}
@@ -72,7 +86,12 @@ public class ProjectCategoriesResource {
 	@Path("/{id}")
 	@UnitOfWork
 	public ProjectCategory readCategory(final @PathParam("id") Long id) throws ResourceException {
-		final ProjectCategoryModel category = categoryService.readCategory(id);
+		ProjectCategoryModel category;
+		try {
+			category = categoryService.readCategory(id);
+		} catch (final ServiceException e) {
+			throw new ResourceException(e);
+		}
 		final ProjectCategory retCategory = ModelUtilities.convert(category, ProjectCategory.class);
 		return retCategory;
 	}
@@ -87,8 +106,13 @@ public class ProjectCategoriesResource {
 	@GET
 	@Path("/{id}/projects")
 	@UnitOfWork
-	public List<BaseIdable> listProjectsByCategory(final @PathParam("id") Long id) {
-		final List<ProjectModel> projects = projectService.listProjectsForCategory(id);
+	public List<BaseIdable> listProjectsByCategory(final @PathParam("id") Long id) throws ResourceException {
+		List<ProjectModel> projects;
+		try {
+			projects = projectService.listProjectsForCategory(id);
+		} catch (final ServiceException e) {
+			throw new ResourceException(e);
+		}
 		return projects.stream().map(ModelUtilities::toIdable).collect(toList());
 	}
 }

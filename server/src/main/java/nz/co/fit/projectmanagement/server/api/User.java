@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
 
-public class User extends BaseIdable {
+public class User extends BaseModel {
 	private String email;
 	private String password;
 	private String name;

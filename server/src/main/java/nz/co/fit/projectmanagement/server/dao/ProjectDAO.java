@@ -1,5 +1,7 @@
 package nz.co.fit.projectmanagement.server.dao;
 
+import static java.util.Arrays.asList;
+
 import java.util.List;
 
 import javax.inject.Inject;
@@ -10,41 +12,26 @@ import javax.persistence.criteria.Root;
 import org.hibernate.SessionFactory;
 import org.jvnet.hk2.annotations.Service;
 
-import io.dropwizard.hibernate.AbstractDAO;
 import nz.co.fit.projectmanagement.server.dao.entities.ProjectCategoryModel;
 import nz.co.fit.projectmanagement.server.dao.entities.ProjectModel;
 
 @Service
-public class ProjectDAO extends AbstractDAO<ProjectModel> {
+public class ProjectDAO extends BaseDAO<ProjectModel> {
 
 	@Inject
 	public ProjectDAO(final SessionFactory sessionFactory) {
 		super(sessionFactory);
 	}
 
-	public List<ProjectModel> listAll() {
-		final CriteriaQuery<ProjectModel> query = criteriaQuery();
-		final Root<ProjectModel> root = query.from(getEntityClass());
-		query.select(root);
-		return list(query);
+	@Override
+	List<String> getExcludeList() {
+		// exclude the components and versions lists from the history
+		return asList("components", "versions");
 	}
 
-	public ProjectModel upsert(final ProjectModel project) {
-		return persist(project);
-	}
-
-	public ProjectModel read(final Long id) {
-		return get(id);
-	}
-
-	public void delete(final Long id) {
-		final ProjectModel project = read(id);
-		currentSession().remove(project);
-	}
-
-	public List<ProjectModel> listProjectsForCategory(final Long categoryId) {
+	public List<ProjectModel> listProjectsForCategory(final Long categoryId) throws DAOException {
 		if (categoryId == null) {
-			return listAll();
+			return list();
 		}
 
 		final CriteriaBuilder cb = currentSession().getCriteriaBuilder();

@@ -13,7 +13,7 @@ import nz.co.fit.projectmanagement.server.dao.VersionStatus;
 
 @Entity
 @Table(name = "version")
-public class VersionModel extends BaseIdableModel {
+public class VersionModel extends BaseModel {
 	@Column(nullable = false)
 	private String name;
 	@Column

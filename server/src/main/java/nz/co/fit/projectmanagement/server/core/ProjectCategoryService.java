@@ -6,6 +6,7 @@ import javax.inject.Inject;
 
 import org.jvnet.hk2.annotations.Service;
 
+import nz.co.fit.projectmanagement.server.dao.DAOException;
 import nz.co.fit.projectmanagement.server.dao.ProjectCategoryDAO;
 import nz.co.fit.projectmanagement.server.dao.ProjectDAO;
 import nz.co.fit.projectmanagement.server.dao.entities.ProjectCategoryModel;
@@ -23,27 +24,52 @@ public class ProjectCategoryService {
 		this.categoryDAO = categoryDAO;
 	}
 
-	public List<ProjectCategoryModel> listAll() {
-		return categoryDAO.listAll();
+	public List<ProjectCategoryModel> listAll() throws ServiceException {
+		try {
+			return categoryDAO.list();
+		} catch (final DAOException e) {
+			throw new ServiceException(e);
+		}
 	}
 
-	public ProjectCategoryModel createCategory(final ProjectCategoryModel category) {
-		return categoryDAO.upsert(category);
+	public ProjectCategoryModel createCategory(final ProjectCategoryModel category) throws ServiceException {
+		try {
+			return categoryDAO.upsert(category);
+		} catch (final DAOException e) {
+			throw new ServiceException(e);
+		}
 	}
 
-	public ProjectCategoryModel readCategory(final Long id) {
-		return categoryDAO.read(id);
+	public ProjectCategoryModel readCategory(final Long id) throws ServiceException {
+		try {
+			return categoryDAO.read(id);
+		} catch (final DAOException e) {
+			throw new ServiceException(e);
+		}
 	}
 
-	public ProjectCategoryModel updateCategory(final ProjectCategoryModel category) {
-		return categoryDAO.upsert(category);
+	public ProjectCategoryModel updateCategory(final ProjectCategoryModel category) throws ServiceException {
+		try {
+			return categoryDAO.upsert(category);
+		} catch (final DAOException e) {
+			throw new ServiceException(e);
+		}
 	}
 
 	public void deleteCategory(final Long id) throws ServiceException {
-		final List<ProjectModel> listProjectsForCategory = projectDAO.listProjectsForCategory(id);
+		List<ProjectModel> listProjectsForCategory;
+		try {
+			listProjectsForCategory = projectDAO.listProjectsForCategory(id);
+		} catch (final DAOException e) {
+			throw new ServiceException(e);
+		}
 		if (!listProjectsForCategory.isEmpty()) {
 			throw new ServiceException("There are projects assigned to this category.");
 		}
-		categoryDAO.delete(id);
+		try {
+			categoryDAO.delete(id);
+		} catch (final DAOException e) {
+			throw new ServiceException(e);
+		}
 	}
 }

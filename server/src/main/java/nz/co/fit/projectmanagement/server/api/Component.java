@@ -2,7 +2,7 @@ package nz.co.fit.projectmanagement.server.api;
 
 import java.util.Objects;
 
-public class Component extends BaseIdable {
+public class Component extends BaseModel {
 	private String name;
 	private String description;
 

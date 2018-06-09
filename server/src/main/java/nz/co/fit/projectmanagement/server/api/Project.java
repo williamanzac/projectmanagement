@@ -4,7 +4,7 @@ import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class Project extends BaseIdable {
+public class Project extends BaseModel {
 	private String name;
 	private String description;
 	private String key;

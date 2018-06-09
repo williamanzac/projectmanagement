@@ -12,6 +12,7 @@ import org.greenrobot.eventbus.EventBus;
 import org.jvnet.hk2.annotations.Service;
 
 import nz.co.fit.projectmanagement.server.auth.CustomAuthUser;
+import nz.co.fit.projectmanagement.server.dao.DAOException;
 import nz.co.fit.projectmanagement.server.dao.HistoryEvent;
 import nz.co.fit.projectmanagement.server.dao.UserDAO;
 import nz.co.fit.projectmanagement.server.dao.entities.UserModel;
@@ -32,11 +33,15 @@ public class UserService {
 		this.historyService = historyService;
 	}
 
-	public List<UserModel> listAll() {
-		return userDAO.listAll();
+	public List<UserModel> listAll() throws ServiceException {
+		try {
+			return userDAO.list();
+		} catch (final DAOException e) {
+			throw new ServiceException(e);
+		}
 	}
 
-	public UserModel createUser(final UserModel user) {
+	public UserModel createUser(final UserModel user) throws ServiceException {
 		if (securityContext != null) {
 			final Principal userPrincipal = securityContext.getUserPrincipal();
 			System.out.println(userPrincipal.getName());
@@ -48,15 +53,28 @@ public class UserService {
 				user.setCreatedBy(currentUser);
 			}
 		}
-		return userDAO.upsert(user);
+		try {
+			return userDAO.upsert(user);
+		} catch (final DAOException e) {
+			throw new ServiceException(e);
+		}
 	}
 
-	public UserModel readUser(final Long id) {
-		return userDAO.read(id);
+	public UserModel readUser(final Long id) throws ServiceException {
+		try {
+			return userDAO.read(id);
+		} catch (final DAOException e) {
+			throw new ServiceException(e);
+		}
 	}
 
-	public UserModel updateUser(final UserModel user) {
-		final UserModel existing = userDAO.read(user.getId());
+	public UserModel updateUser(final UserModel user) throws ServiceException {
+		UserModel existing;
+		try {
+			existing = userDAO.read(user.getId());
+		} catch (final DAOException e) {
+			throw new ServiceException(e);
+		}
 		if (user.getName() != null) {
 			if (!user.getName().equals(existing.getName())) {
 				EventBus.getDefault().post(new HistoryEvent("name", existing.getName(), user.getName(), user));
@@ -83,11 +101,19 @@ public class UserService {
 			}
 			existing.setPassword(user.getPassword());
 		}
-		return userDAO.upsert(existing);
+		try {
+			return userDAO.upsert(existing);
+		} catch (final DAOException e) {
+			throw new ServiceException(e);
+		}
 	}
 
-	public void deleteUser(final Long id) {
+	public void deleteUser(final Long id) throws ServiceException {
 		historyService.deleteHistoryForObject(id, UserModel.class);
-		userDAO.delete(id);
+		try {
+			userDAO.delete(id);
+		} catch (final DAOException e) {
+			throw new ServiceException(e);
+		}
 	}
 }

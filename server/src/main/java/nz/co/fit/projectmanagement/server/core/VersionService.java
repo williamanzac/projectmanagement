@@ -5,6 +5,7 @@ import javax.inject.Inject;
 import org.greenrobot.eventbus.EventBus;
 import org.jvnet.hk2.annotations.Service;
 
+import nz.co.fit.projectmanagement.server.dao.DAOException;
 import nz.co.fit.projectmanagement.server.dao.HistoryEvent;
 import nz.co.fit.projectmanagement.server.dao.VersionDAO;
 import nz.co.fit.projectmanagement.server.dao.entities.VersionModel;
@@ -21,16 +22,29 @@ public class VersionService {
 		this.historyService = historyService;
 	}
 
-	public VersionModel createVersion(final VersionModel version) {
-		return versionDAO.upsert(version);
+	public VersionModel createVersion(final VersionModel version) throws ServiceException {
+		try {
+			return versionDAO.upsert(version);
+		} catch (final DAOException e) {
+			throw new ServiceException(e);
+		}
 	}
 
-	public VersionModel readVersion(final Long id) {
-		return versionDAO.read(id);
+	public VersionModel readVersion(final Long id) throws ServiceException {
+		try {
+			return versionDAO.read(id);
+		} catch (final DAOException e) {
+			throw new ServiceException(e);
+		}
 	}
 
-	public VersionModel updateVersion(final VersionModel version) {
-		final VersionModel existing = versionDAO.read(version.getId());
+	public VersionModel updateVersion(final VersionModel version) throws ServiceException {
+		VersionModel existing;
+		try {
+			existing = versionDAO.read(version.getId());
+		} catch (final DAOException e) {
+			throw new ServiceException(e);
+		}
 		if (version.getDescription() != null) {
 			if (!version.getDescription().equals(existing.getDescription())) {
 				EventBus.getDefault().post(
@@ -89,11 +103,19 @@ public class VersionService {
 						String.valueOf(version.getStatus()), version));
 			}
 		}
-		return versionDAO.upsert(existing);
+		try {
+			return versionDAO.upsert(existing);
+		} catch (final DAOException e) {
+			throw new ServiceException(e);
+		}
 	}
 
-	public void deleteVersion(final Long id) {
+	public void deleteVersion(final Long id) throws ServiceException {
 		historyService.deleteHistoryForObject(id, VersionModel.class);
-		versionDAO.delete(id);
+		try {
+			versionDAO.delete(id);
+		} catch (final DAOException e) {
+			throw new ServiceException(e);
+		}
 	}
 }

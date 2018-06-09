@@ -8,7 +8,7 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "history")
-public class HistoryModel extends BaseIdableModel {
+public class HistoryModel extends BaseModel {
 	@Column(updatable = false, nullable = false)
 	private String entityClass;
 	@Column(updatable = false, nullable = false)

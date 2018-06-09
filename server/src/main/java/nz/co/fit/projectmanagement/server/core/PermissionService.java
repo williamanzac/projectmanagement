@@ -6,6 +6,7 @@ import javax.inject.Inject;
 
 import org.jvnet.hk2.annotations.Service;
 
+import nz.co.fit.projectmanagement.server.dao.DAOException;
 import nz.co.fit.projectmanagement.server.dao.PermissionsDAO;
 import nz.co.fit.projectmanagement.server.dao.entities.PermissionModel;
 
@@ -19,7 +20,11 @@ public class PermissionService {
 		this.permissionsDAO = permissionsDAO;
 	}
 
-	public List<PermissionModel> listAll() {
-		return permissionsDAO.listAll();
+	public List<PermissionModel> listAll() throws ServiceException {
+		try {
+			return permissionsDAO.list();
+		} catch (final DAOException e) {
+			throw new ServiceException(e);
+		}
 	}
 }

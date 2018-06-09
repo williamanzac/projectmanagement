@@ -14,7 +14,7 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "project")
-public class ProjectModel extends BaseIdableModel {
+public class ProjectModel extends BaseModel {
 	@Column(unique = true, nullable = false)
 	private String name;
 	@Column

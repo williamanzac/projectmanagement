@@ -8,7 +8,7 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "component")
-public class ComponentModel extends BaseIdableModel {
+public class ComponentModel extends BaseModel {
 	@Column(nullable = false)
 	private String name;
 	@Column

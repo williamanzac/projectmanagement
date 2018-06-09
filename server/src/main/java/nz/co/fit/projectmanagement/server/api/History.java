@@ -3,7 +3,7 @@ package nz.co.fit.projectmanagement.server.api;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
 
-public class History extends BaseIdable {
+public class History extends BaseModel {
 	private String fieldName;
 	private String oldValue;
 	private String newValue;
