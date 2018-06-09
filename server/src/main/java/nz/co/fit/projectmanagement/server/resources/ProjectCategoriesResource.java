@@ -45,7 +45,7 @@ public class ProjectCategoriesResource {
 	@UnitOfWork
 	public List<BaseIdable> listAllProjects() throws ResourceException {
 		try {
-			return categoryService.listAll().stream().map(ModelUtilities::toIdable).collect(toList());
+			return categoryService.list().stream().map(ModelUtilities::toIdable).collect(toList());
 		} catch (final ServiceException e) {
 			throw new ResourceException(e);
 		}
@@ -57,7 +57,7 @@ public class ProjectCategoriesResource {
 		final ProjectCategoryModel model = ModelUtilities.convert(category, ProjectCategoryModel.class);
 		ProjectCategoryModel createCategory;
 		try {
-			createCategory = categoryService.createCategory(model);
+			createCategory = categoryService.create(model);
 		} catch (final ServiceException e) {
 			throw new ResourceException(e);
 		}
@@ -74,7 +74,7 @@ public class ProjectCategoriesResource {
 		final ProjectCategoryModel model = ModelUtilities.convert(category, ProjectCategoryModel.class);
 		ProjectCategoryModel createCategory;
 		try {
-			createCategory = categoryService.updateCategory(model);
+			createCategory = categoryService.update(model);
 		} catch (final ServiceException e) {
 			throw new ResourceException(e);
 		}
@@ -88,7 +88,7 @@ public class ProjectCategoriesResource {
 	public ProjectCategory readCategory(final @PathParam("id") Long id) throws ResourceException {
 		ProjectCategoryModel category;
 		try {
-			category = categoryService.readCategory(id);
+			category = categoryService.read(id);
 		} catch (final ServiceException e) {
 			throw new ResourceException(e);
 		}
@@ -100,7 +100,7 @@ public class ProjectCategoriesResource {
 	@Path("/{id}")
 	@UnitOfWork
 	public void deleteCategory(final @PathParam("id") Long id) throws ServiceException {
-		categoryService.deleteCategory(id);
+		categoryService.delete(id);
 	}
 
 	@GET

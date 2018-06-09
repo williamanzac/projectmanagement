@@ -25,6 +25,9 @@ public abstract class BaseModel extends BaseIdableModel {
 	@ManyToOne
 	@JoinColumn(name = "CREATE_ID")
 	private UserModel createdBy;
+	@ManyToOne
+	@JoinColumn(name = "UPDATE_ID")
+	private UserModel updatedBy;
 
 	public Timestamp getTimestamp() {
 		return timestamp;
@@ -48,5 +51,13 @@ public abstract class BaseModel extends BaseIdableModel {
 
 	public void setCreatedBy(final UserModel createdBy) {
 		this.createdBy = createdBy;
+	}
+
+	public UserModel getUpdatedBy() {
+		return updatedBy;
+	}
+
+	public void setUpdatedBy(final UserModel updatedBy) {
+		this.updatedBy = updatedBy;
 	}
 }

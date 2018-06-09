@@ -2,97 +2,60 @@ package nz.co.fit.projectmanagement.server.core;
 
 import java.util.List;
 
-import javax.annotation.Resource;
 import javax.inject.Inject;
-import javax.ws.rs.core.SecurityContext;
 
 import org.jvnet.hk2.annotations.Service;
 
 import nz.co.fit.projectmanagement.server.dao.DAOException;
 import nz.co.fit.projectmanagement.server.dao.ProjectDAO;
+import nz.co.fit.projectmanagement.server.dao.UserDAO;
 import nz.co.fit.projectmanagement.server.dao.entities.ProjectCategoryModel;
 import nz.co.fit.projectmanagement.server.dao.entities.ProjectModel;
 import nz.co.fit.projectmanagement.server.dao.entities.UserModel;
 
 @Service
-public class ProjectService {
+public class ProjectService extends CRUDLService<ProjectModel> {
 
-	private final ProjectDAO projectDAO;
 	private final VersionService versionService;
 	private final ComponentService componentService;
 	private final ProjectCategoryService categoryService;
 	private final UserService userService;
-	private final HistoryService historyService;
-
-	@Resource
-	SecurityContext securityContext;
 
 	@Inject
 	public ProjectService(final ProjectDAO projectDAO, final VersionService versionService,
 			final ComponentService componentService, final ProjectCategoryService categoryService,
-			final UserService userService, final HistoryService historyService) {
-		this.projectDAO = projectDAO;
+			final UserService userService, final HistoryService historyService, final UserDAO userDAO) {
+		super(projectDAO, historyService, userDAO);
 		this.versionService = versionService;
 		this.componentService = componentService;
 		this.categoryService = categoryService;
 		this.userService = userService;
-		this.historyService = historyService;
 	}
 
-	public List<ProjectModel> listProjects() throws ServiceException {
-		try {
-			return projectDAO.list();
-		} catch (final DAOException e) {
-			throw new ServiceException(e);
-		}
-	}
-
-	public ProjectModel createProject(final ProjectModel project) throws ServiceException {
-		// assume the project does not have an id
-		// if (!project.getVersions().isEmpty()) {
-		// // some versions have been passed in, so make sure that they are upserted first.
-		// project.getVersions().forEach(v -> versionService.updateVersion(v));
-		// }
-		// if (!project.getComponents().isEmpty()) {
-		// // some versions have been passed in, so make sure that they are upserted first.
-		// project.getComponents().forEach(c -> componentService.upsert(c));
-		// }
-		if (securityContext != null) {
-			securityContext.getUserPrincipal();
-		}
+	@Override
+	public ProjectModel create(final ProjectModel project) throws ServiceException {
+		// the data from the REST layer will only have the id so we will need to find the actual object
 		if (project.getCategory() != null) {
-			final ProjectCategoryModel category = categoryService.readCategory(project.getCategory().getId());
+			final ProjectCategoryModel category = categoryService.read(project.getCategory().getId());
 			project.setCategory(category);
 		}
 		if (project.getProjectLead() != null) {
-			final UserModel user = userService.readUser(project.getProjectLead().getId());
+			final UserModel user = userService.read(project.getProjectLead().getId());
 			project.setProjectLead(user);
 		}
-		try {
-			return projectDAO.upsert(project);
-		} catch (final DAOException e) {
-			throw new ServiceException(e);
-		}
+		return super.create(project);
 	}
 
-	public ProjectModel readProject(final Long id) throws ServiceException {
-		try {
-			return projectDAO.read(id);
-		} catch (final DAOException e) {
-			throw new ServiceException(e);
-		}
-	}
-
-	public ProjectModel updateProject(final ProjectModel project) throws ServiceException {
-		// assume the project does not have an id
+	@Override
+	public ProjectModel update(final ProjectModel project) throws ServiceException {
 		if (!project.getVersions().isEmpty()) {
 			// some versions have been passed in, so make sure that they are upserted first.
 			project.getVersions().forEach(v -> {
 				try {
 					if (v.getId() != null) {
-						versionService.updateVersion(v);
+						versionService.update(v);
 					} else {
-						versionService.createVersion(v);
+						versionService.create(v);
 					}
 				} catch (final ServiceException e) {
 					e.printStackTrace();
@@ -104,9 +67,9 @@ public class ProjectService {
 			project.getComponents().forEach(c -> {
 				try {
 					if (c.getId() != null) {
-						componentService.updateComponent(c);
+						componentService.update(c);
 					} else {
-						componentService.createComponent(c);
+						componentService.create(c);
 					}
 				} catch (final ServiceException e) {
 					e.printStackTrace();
@@ -116,54 +79,47 @@ public class ProjectService {
 
 		// the data from the api will only be the id, so we need to read the whole object
 		if (project.getCategory() != null) {
-			final ProjectCategoryModel category = categoryService.readCategory(project.getCategory().getId());
+			final ProjectCategoryModel category = categoryService.read(project.getCategory().getId());
 			project.setCategory(category);
 		}
 		if (project.getProjectLead() != null) {
-			final UserModel user = userService.readUser(project.getProjectLead().getId());
+			final UserModel user = userService.read(project.getProjectLead().getId());
 			project.setProjectLead(user);
 		}
 
-		try {
-			return projectDAO.upsert(project);
-		} catch (final DAOException e) {
-			throw new ServiceException(e);
-		}
+		return super.update(project);
 	}
 
-	public void deleteProject(final Long id) throws ServiceException {
+	@Override
+	public void delete(final Long id) throws ServiceException {
 		ProjectModel existingProject;
 		try {
-			existingProject = projectDAO.read(id);
+			existingProject = dao.read(id);
 		} catch (final DAOException e) {
 			throw new ServiceException(e);
 		}
-		// delete the versions, components and history first
+		// delete the versions, components
 		existingProject.getVersions().forEach(v -> {
 			try {
-				versionService.deleteVersion(v.getId());
+				versionService.delete(v.getId());
 			} catch (final ServiceException e2) {
 				e2.printStackTrace();
 			}
 		});
 		existingProject.getComponents().forEach(c -> {
 			try {
-				componentService.deleteComponent(c.getId());
+				componentService.delete(c.getId());
 			} catch (final ServiceException e1) {
 				e1.printStackTrace();
 			}
 		});
-		historyService.deleteHistoryForObject(id, ProjectModel.class);
-		try {
-			projectDAO.delete(id);
-		} catch (final DAOException e) {
-			throw new ServiceException(e);
-		}
+
+		super.delete(id);
 	}
 
 	public List<ProjectModel> listProjectsForCategory(final Long categoryId) throws ServiceException {
 		try {
-			return projectDAO.listProjectsForCategory(categoryId);
+			return ((ProjectDAO) dao).listProjectsForCategory(categoryId);
 		} catch (final DAOException e) {
 			throw new ServiceException(e);
 		}

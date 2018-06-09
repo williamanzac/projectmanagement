@@ -13,7 +13,6 @@ import nz.co.fit.projectmanagement.server.dao.entities.HistoryModel;
 public class ManagedHistoryService implements Managed {
 
 	private final SessionFactory sessionFactory;
-	// private final HistoryDAO historyDAO;
 
 	public ManagedHistoryService(final SessionFactory sessionFactory) {
 		this.sessionFactory = sessionFactory;

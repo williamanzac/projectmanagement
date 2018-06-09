@@ -42,7 +42,7 @@ public class UsersResource {
 	@UnitOfWork
 	public List<BaseIdable> listAllUsers() throws ResourceException {
 		try {
-			return userService.listAll().stream().map(ModelUtilities::toIdable).collect(toList());
+			return userService.list().stream().map(ModelUtilities::toIdable).collect(toList());
 		} catch (final ServiceException e) {
 			throw new ResourceException(e);
 		}
@@ -55,7 +55,7 @@ public class UsersResource {
 		final UserModel model = ModelUtilities.convert(user, UserModel.class);
 		UserModel createUser;
 		try {
-			createUser = userService.createUser(model);
+			createUser = userService.create(model);
 		} catch (final ServiceException e) {
 			throw new ResourceException(e);
 		}
@@ -71,7 +71,7 @@ public class UsersResource {
 		final UserModel model = ModelUtilities.convert(user, UserModel.class);
 		UserModel createUser;
 		try {
-			createUser = userService.updateUser(model);
+			createUser = userService.update(model);
 		} catch (final ServiceException e) {
 			throw new ResourceException(e);
 		}
@@ -85,7 +85,7 @@ public class UsersResource {
 	public User readUser(final @PathParam("id") Long id) throws ResourceException {
 		UserModel user;
 		try {
-			user = userService.readUser(id);
+			user = userService.read(id);
 		} catch (final ServiceException e) {
 			throw new ResourceException(e);
 		}
@@ -98,7 +98,7 @@ public class UsersResource {
 	@UnitOfWork
 	public void deleteUser(final @PathParam("id") Long id) throws ResourceException {
 		try {
-			userService.deleteUser(id);
+			userService.delete(id);
 		} catch (final ServiceException e) {
 			throw new ResourceException(e);
 		}

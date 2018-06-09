@@ -39,7 +39,7 @@ public class VersionsResource {
 		final VersionModel model = ModelUtilities.convert(version, VersionModel.class);
 		VersionModel createVersion;
 		try {
-			createVersion = versionService.updateVersion(model);
+			createVersion = versionService.update(model);
 		} catch (final ServiceException e) {
 			throw new ResourceException(e);
 		}
@@ -53,7 +53,7 @@ public class VersionsResource {
 	public Version readVersion(final @PathParam("id") Long id) throws ResourceException {
 		VersionModel version;
 		try {
-			version = versionService.readVersion(id);
+			version = versionService.read(id);
 		} catch (final ServiceException e) {
 			throw new ResourceException(e);
 		}
@@ -66,7 +66,7 @@ public class VersionsResource {
 	@UnitOfWork
 	public void deleteVersion(final @PathParam("id") Long id) throws ResourceException {
 		try {
-			versionService.deleteVersion(id);
+			versionService.delete(id);
 		} catch (final ServiceException e) {
 			throw new ResourceException(e);
 		}
@@ -78,12 +78,12 @@ public class VersionsResource {
 	public void releaseVersion(final @PathParam("id") Long id) throws ResourceException {
 		VersionModel version;
 		try {
-			version = versionService.readVersion(id);
+			version = versionService.read(id);
 			if (version.getReleasedDate() != null) {
 				throw new ResourceException("This version has already been released.");
 			}
 			version.setReleasedDate(new Date());
-			versionService.updateVersion(version);
+			versionService.update(version);
 		} catch (final ServiceException e) {
 			throw new ResourceException(e);
 		}
@@ -95,12 +95,12 @@ public class VersionsResource {
 	public void unreleaseVersion(final @PathParam("id") Long id) throws ResourceException {
 		VersionModel version;
 		try {
-			version = versionService.readVersion(id);
+			version = versionService.read(id);
 			if (version.getReleasedDate() == null) {
 				throw new ResourceException("This version has not been released.");
 			}
 			version.setReleasedDate(null);
-			versionService.updateVersion(version);
+			versionService.update(version);
 		} catch (final ServiceException e) {
 			throw new ResourceException(e);
 		}
@@ -112,12 +112,12 @@ public class VersionsResource {
 	public void archiveVersion(final @PathParam("id") Long id) throws ResourceException {
 		VersionModel version;
 		try {
-			version = versionService.readVersion(id);
+			version = versionService.read(id);
 			if (version.getArchivedDate() != null) {
 				throw new ResourceException("This version has already been archived.");
 			}
 			version.setArchivedDate(new Date());
-			versionService.updateVersion(version);
+			versionService.update(version);
 		} catch (final ServiceException e) {
 			throw new ResourceException(e);
 		}
@@ -129,12 +129,12 @@ public class VersionsResource {
 	public void unarchiveVersion(final @PathParam("id") Long id) throws ResourceException {
 		VersionModel version;
 		try {
-			version = versionService.readVersion(id);
+			version = versionService.read(id);
 			if (version.getArchivedDate() == null) {
 				throw new ResourceException("This version has not been archived.");
 			}
 			version.setArchivedDate(null);
-			versionService.updateVersion(version);
+			versionService.update(version);
 		} catch (final ServiceException e) {
 			throw new ResourceException(e);
 		}

@@ -9,6 +9,7 @@ public class BaseModel extends BaseIdable {
 	private Timestamp timestamp;
 	private Date createdOn;
 	private BaseIdable createdBy;
+	private BaseIdable updatedBy;
 
 	@JsonProperty(required = false)
 	public Timestamp getTimestamp() {
@@ -35,5 +36,14 @@ public class BaseModel extends BaseIdable {
 
 	public void setCreatedBy(final BaseIdable createdBy) {
 		this.createdBy = createdBy;
+	}
+
+	@JsonProperty(required = false)
+	public BaseIdable getUpdatedBy() {
+		return updatedBy;
+	}
+
+	public void setUpdatedBy(final BaseIdable updatedBy) {
+		this.updatedBy = updatedBy;
 	}
 }

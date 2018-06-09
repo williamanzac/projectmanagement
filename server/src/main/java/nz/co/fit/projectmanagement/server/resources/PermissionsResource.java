@@ -34,7 +34,7 @@ public class PermissionsResource {
 	@UnitOfWork
 	public List<String> listAllPermissions() throws ResourceException {
 		try {
-			return permissionService.listAll().stream().map(PermissionModel::getName).collect(toList());
+			return permissionService.list().stream().map(PermissionModel::getName).collect(toList());
 		} catch (final ServiceException e) {
 			throw new ResourceException(e);
 		}

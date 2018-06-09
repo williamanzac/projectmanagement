@@ -14,42 +14,45 @@ import nz.co.fit.projectmanagement.server.dao.entities.IdableModel;
 @Service
 public class HistoryService {
 
-	private final HistoryDAO historyDAO;
+	private final HistoryDAO dao;
 
 	@Inject
-	public HistoryService(final HistoryDAO historyDAO) {
-		this.historyDAO = historyDAO;
+	public HistoryService(final HistoryDAO dao) {
+		this.dao = dao;
 	}
 
-	public HistoryModel createHistory(final HistoryModel history) throws ServiceException {
+	public HistoryModel create(final HistoryModel history) throws ServiceException {
 		try {
-			return historyDAO.upsert(history);
+			if (history.getId() != null) {
+				throw new ServiceException("History entries cannot be updated");
+			}
+			return dao.upsert(history);
 		} catch (final DAOException e) {
 			throw new ServiceException(e);
 		}
 	}
 
-	public HistoryModel readHistory(final Long id) throws ServiceException {
+	public HistoryModel read(final Long id) throws ServiceException {
 		try {
-			return historyDAO.read(id);
+			return dao.read(id);
 		} catch (final DAOException e) {
 			throw new ServiceException(e);
 		}
 	}
 
-	public void deleteHistory(final Long id) throws ServiceException {
+	public void delete(final Long id) throws ServiceException {
 		try {
-			historyDAO.delete(id);
+			dao.delete(id);
 		} catch (final DAOException e) {
 			throw new ServiceException(e);
 		}
 	}
 
 	public <E extends IdableModel> void deleteHistoryForObject(final Long objectId, final Class<E> entityClass) {
-		historyDAO.deleteHistoryForObject(objectId, entityClass);
+		dao.deleteHistoryForObject(objectId, entityClass);
 	}
 
 	public <E extends IdableModel> List<HistoryModel> historyForObject(final Long id, final Class<E> entityClass) {
-		return historyDAO.historyForObject(id, entityClass);
+		return dao.historyForObject(id, entityClass);
 	}
 }

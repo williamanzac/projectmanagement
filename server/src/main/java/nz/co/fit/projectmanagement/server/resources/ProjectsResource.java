@@ -56,7 +56,7 @@ public class ProjectsResource {
 	@UnitOfWork
 	public List<BaseIdable> listAllProjects() throws ResourceException {
 		try {
-			return projectService.listProjects().stream().map(ModelUtilities::toIdable).collect(toList());
+			return projectService.list().stream().map(ModelUtilities::toIdable).collect(toList());
 		} catch (final ServiceException e) {
 			throw new ResourceException(e);
 		}
@@ -68,7 +68,7 @@ public class ProjectsResource {
 		final ProjectModel model = ModelUtilities.convert(project, ProjectModel.class);
 		ProjectModel createProject;
 		try {
-			createProject = projectService.createProject(model);
+			createProject = projectService.create(model);
 		} catch (final ServiceException e) {
 			throw new ResourceException(e);
 		}
@@ -84,7 +84,7 @@ public class ProjectsResource {
 		final ProjectModel model = ModelUtilities.convert(project, ProjectModel.class);
 		ProjectModel createProject;
 		try {
-			createProject = projectService.updateProject(model);
+			createProject = projectService.update(model);
 		} catch (final ServiceException e) {
 			throw new ResourceException(e);
 		}
@@ -98,7 +98,7 @@ public class ProjectsResource {
 	public Project readProject(final @PathParam("id") Long id) throws ResourceException {
 		ProjectModel project;
 		try {
-			project = projectService.readProject(id);
+			project = projectService.read(id);
 		} catch (final ServiceException e) {
 			throw new ResourceException(e);
 		}
@@ -111,7 +111,7 @@ public class ProjectsResource {
 	@UnitOfWork
 	public void deleteProject(final @PathParam("id") Long id) throws ResourceException {
 		try {
-			projectService.deleteProject(id);
+			projectService.delete(id);
 		} catch (final ServiceException e) {
 			throw new ResourceException(e);
 		}
@@ -138,7 +138,7 @@ public class ProjectsResource {
 	@UnitOfWork
 	public List<BaseIdable> listAllVersions(final @PathParam("id") Long projectId) throws ResourceException {
 		try {
-			return projectService.readProject(projectId).getVersions().stream().map(ModelUtilities::toIdable)
+			return projectService.read(projectId).getVersions().stream().map(ModelUtilities::toIdable)
 					.collect(toList());
 		} catch (final ServiceException e) {
 			throw new ResourceException(e);
@@ -152,7 +152,7 @@ public class ProjectsResource {
 			throws ResourceException {
 		ProjectModel projModel;
 		try {
-			projModel = projectService.readProject(projectId);
+			projModel = projectService.read(projectId);
 		} catch (final ServiceException e) {
 			throw new ResourceException(e);
 		}
@@ -168,8 +168,8 @@ public class ProjectsResource {
 		versions.add(model);
 		final VersionModel createVersion;
 		try {
-			createVersion = versionService.createVersion(model);
-			projectService.updateProject(projModel);
+			createVersion = versionService.create(model);
+			projectService.update(projModel);
 		} catch (final ServiceException e) {
 			throw new ResourceException(e);
 		}
@@ -183,7 +183,7 @@ public class ProjectsResource {
 	@UnitOfWork
 	public List<BaseIdable> listAllComponents(final @PathParam("id") Long projectId) throws ResourceException {
 		try {
-			return projectService.readProject(projectId).getComponents().stream().map(ModelUtilities::toIdable)
+			return projectService.read(projectId).getComponents().stream().map(ModelUtilities::toIdable)
 					.collect(toList());
 		} catch (final ServiceException e) {
 			throw new ResourceException(e);
@@ -197,7 +197,7 @@ public class ProjectsResource {
 			throws ResourceException {
 		ProjectModel projModel;
 		try {
-			projModel = projectService.readProject(projectId);
+			projModel = projectService.read(projectId);
 		} catch (final ServiceException e) {
 			throw new ResourceException(e);
 		}
@@ -211,8 +211,8 @@ public class ProjectsResource {
 		components.add(model);
 		final ComponentModel createComponent;
 		try {
-			createComponent = componentService.createComponent(model);
-			projectService.updateProject(projModel);
+			createComponent = componentService.create(model);
+			projectService.update(projModel);
 		} catch (final ServiceException e) {
 			throw new ResourceException(e);
 		}

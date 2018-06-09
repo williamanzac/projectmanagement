@@ -37,7 +37,7 @@ public class ComponentsResource {
 		final ComponentModel model = ModelUtilities.convert(component, ComponentModel.class);
 		ComponentModel createComponent;
 		try {
-			createComponent = componentService.updateComponent(model);
+			createComponent = componentService.update(model);
 		} catch (final ServiceException e) {
 			throw new ResourceException(e);
 		}
@@ -51,7 +51,7 @@ public class ComponentsResource {
 	public Component readComponent(final @PathParam("id") Long id) throws ResourceException {
 		ComponentModel component;
 		try {
-			component = componentService.readComponent(id);
+			component = componentService.read(id);
 		} catch (final ServiceException e) {
 			throw new ResourceException(e);
 		}
@@ -64,7 +64,7 @@ public class ComponentsResource {
 	@UnitOfWork
 	public void deleteComponent(final @PathParam("id") Long id) throws ResourceException {
 		try {
-			componentService.deleteComponent(id);
+			componentService.delete(id);
 		} catch (final ServiceException e) {
 			throw new ResourceException(e);
 		}
