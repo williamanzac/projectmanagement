@@ -20,6 +20,7 @@ import nz.co.fit.projectmanagement.server.dao.entities.PermissionModel;
 @Path("/permissions")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
+@PermitAll
 public class PermissionsResource {
 
 	private final PermissionService permissionService;
@@ -30,9 +31,8 @@ public class PermissionsResource {
 	}
 
 	@GET
-	@PermitAll
 	@UnitOfWork
-	public List<String> listAllPermissions() throws ResourceException {
+	public List<String> list() throws ResourceException {
 		try {
 			return permissionService.list().stream().map(PermissionModel::getName).collect(toList());
 		} catch (final ServiceException e) {
