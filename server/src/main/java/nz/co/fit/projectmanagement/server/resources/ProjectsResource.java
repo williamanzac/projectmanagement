@@ -17,7 +17,6 @@ import javax.ws.rs.core.MediaType;
 import io.dropwizard.hibernate.UnitOfWork;
 import nz.co.fit.projectmanagement.server.api.BaseIdable;
 import nz.co.fit.projectmanagement.server.api.Component;
-import nz.co.fit.projectmanagement.server.api.History;
 import nz.co.fit.projectmanagement.server.api.Project;
 import nz.co.fit.projectmanagement.server.api.Version;
 import nz.co.fit.projectmanagement.server.core.ComponentService;
@@ -26,7 +25,6 @@ import nz.co.fit.projectmanagement.server.core.ProjectService;
 import nz.co.fit.projectmanagement.server.core.ServiceException;
 import nz.co.fit.projectmanagement.server.core.VersionService;
 import nz.co.fit.projectmanagement.server.dao.entities.ComponentModel;
-import nz.co.fit.projectmanagement.server.dao.entities.HistoryModel;
 import nz.co.fit.projectmanagement.server.dao.entities.ProjectModel;
 import nz.co.fit.projectmanagement.server.dao.entities.VersionModel;
 
@@ -38,36 +36,19 @@ public class ProjectsResource extends CRUDLResource<Project, ProjectModel> {
 
 	private final VersionService versionService;
 	private final ComponentService componentService;
-	private final HistoryService historyService;
 
 	@Inject
 	public ProjectsResource(final ProjectService projectService, final VersionService versionService,
 			final ComponentService componentService, final HistoryService historyService) {
-		super(projectService);
+		super(projectService, historyService);
 		this.versionService = versionService;
 		this.componentService = componentService;
-		this.historyService = historyService;
-	}
-
-	@GET
-	@Path("/{id}/history")
-	@UnitOfWork
-	public List<History> listProjectHistory(final @PathParam("id") Long id) {
-		final List<HistoryModel> historyForObject = historyService.historyForObject(id, dbClass);
-		return historyForObject.stream().map(h -> {
-			try {
-				return ModelUtilities.convert(h, History.class);
-			} catch (final ResourceException e) {
-				e.printStackTrace();
-			}
-			return null;
-		}).collect(toList());
 	}
 
 	@GET
 	@Path("/{id}/versions")
 	@UnitOfWork
-	public List<BaseIdable> listAllVersions(final @PathParam("id") Long projectId) throws ResourceException {
+	public List<BaseIdable> listVersions(final @PathParam("id") Long projectId) throws ResourceException {
 		try {
 			return service.read(projectId).getVersions().stream().map(ModelUtilities::toIdable).collect(toList());
 		} catch (final ServiceException e) {
@@ -111,7 +92,7 @@ public class ProjectsResource extends CRUDLResource<Project, ProjectModel> {
 	@Path("/{id}/components")
 	@PermitAll
 	@UnitOfWork
-	public List<BaseIdable> listAllComponents(final @PathParam("id") Long projectId) throws ResourceException {
+	public List<BaseIdable> listComponents(final @PathParam("id") Long projectId) throws ResourceException {
 		try {
 			return service.read(projectId).getComponents().stream().map(ModelUtilities::toIdable).collect(toList());
 		} catch (final ServiceException e) {

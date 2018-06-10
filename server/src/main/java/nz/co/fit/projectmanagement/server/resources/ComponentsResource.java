@@ -15,6 +15,7 @@ import javax.ws.rs.core.MediaType;
 import nz.co.fit.projectmanagement.server.api.BaseIdable;
 import nz.co.fit.projectmanagement.server.api.Component;
 import nz.co.fit.projectmanagement.server.core.ComponentService;
+import nz.co.fit.projectmanagement.server.core.HistoryService;
 import nz.co.fit.projectmanagement.server.dao.entities.ComponentModel;
 
 @Path("/components")
@@ -24,8 +25,8 @@ import nz.co.fit.projectmanagement.server.dao.entities.ComponentModel;
 public class ComponentsResource extends CRUDLResource<Component, ComponentModel> {
 
 	@Inject
-	public ComponentsResource(final ComponentService componentService) {
-		super(componentService);
+	public ComponentsResource(final ComponentService componentService, final HistoryService historyService) {
+		super(componentService, historyService);
 	}
 
 	@POST

@@ -8,6 +8,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
 import nz.co.fit.projectmanagement.server.api.User;
+import nz.co.fit.projectmanagement.server.core.HistoryService;
 import nz.co.fit.projectmanagement.server.core.UserService;
 import nz.co.fit.projectmanagement.server.dao.entities.UserModel;
 
@@ -17,7 +18,7 @@ import nz.co.fit.projectmanagement.server.dao.entities.UserModel;
 @PermitAll
 public class UsersResource extends CRUDLResource<User, UserModel> {
 	@Inject
-	public UsersResource(final UserService userService) {
-		super(userService);
+	public UsersResource(final UserService userService, final HistoryService historyService) {
+		super(userService, historyService);
 	}
 }

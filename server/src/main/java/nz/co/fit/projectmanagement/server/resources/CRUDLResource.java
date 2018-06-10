@@ -3,6 +3,7 @@ package nz.co.fit.projectmanagement.server.resources;
 import static java.util.stream.Collectors.toList;
 
 import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.List;
 
 import javax.annotation.security.PermitAll;
@@ -15,22 +16,29 @@ import javax.ws.rs.PathParam;
 
 import io.dropwizard.hibernate.UnitOfWork;
 import nz.co.fit.projectmanagement.server.api.BaseIdable;
+import nz.co.fit.projectmanagement.server.api.History;
 import nz.co.fit.projectmanagement.server.core.CRUDLService;
+import nz.co.fit.projectmanagement.server.core.HistoryService;
 import nz.co.fit.projectmanagement.server.core.ServiceException;
 import nz.co.fit.projectmanagement.server.dao.entities.BaseIdableModel;
+import nz.co.fit.projectmanagement.server.dao.entities.HistoryModel;
 
 @PermitAll
 public class CRUDLResource<A extends BaseIdable, D extends BaseIdableModel> {
 
 	final CRUDLService<D> service;
+	final HistoryService historyService;
 	final Class<A> apiClass;
 	final Class<D> dbClass;
 
 	@SuppressWarnings("unchecked")
-	public CRUDLResource(final CRUDLService<D> service) {
+	public CRUDLResource(final CRUDLService<D> service, final HistoryService historyService) {
 		this.service = service;
-		apiClass = (Class<A>) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0];
-		dbClass = (Class<D>) ((ParameterizedType) getClass().getGenericSuperclass()).getActualTypeArguments()[0];
+		this.historyService = historyService;
+		final ParameterizedType genericSuperclass = (ParameterizedType) getClass().getGenericSuperclass();
+		final Type[] typeArguments = genericSuperclass.getActualTypeArguments();
+		apiClass = (Class<A>) typeArguments[0];
+		dbClass = (Class<D>) typeArguments[1];
 	}
 
 	@POST
@@ -96,5 +104,20 @@ public class CRUDLResource<A extends BaseIdable, D extends BaseIdableModel> {
 		} catch (final ServiceException e) {
 			throw new ResourceException(e);
 		}
+	}
+
+	@GET
+	@Path("/{id}/history")
+	@UnitOfWork
+	public List<History> listHistory(final @PathParam("id") Long id) {
+		final List<HistoryModel> historyForObject = historyService.historyForObject(id, dbClass);
+		return historyForObject.stream().map(h -> {
+			try {
+				return ModelUtilities.convert(h, History.class);
+			} catch (final ResourceException e) {
+				e.printStackTrace();
+			}
+			return null;
+		}).collect(toList());
 	}
 }

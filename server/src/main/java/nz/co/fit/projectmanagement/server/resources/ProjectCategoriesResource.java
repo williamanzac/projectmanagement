@@ -16,6 +16,7 @@ import javax.ws.rs.core.MediaType;
 import io.dropwizard.hibernate.UnitOfWork;
 import nz.co.fit.projectmanagement.server.api.BaseIdable;
 import nz.co.fit.projectmanagement.server.api.ProjectCategory;
+import nz.co.fit.projectmanagement.server.core.HistoryService;
 import nz.co.fit.projectmanagement.server.core.ProjectCategoryService;
 import nz.co.fit.projectmanagement.server.core.ProjectService;
 import nz.co.fit.projectmanagement.server.core.ServiceException;
@@ -31,9 +32,9 @@ public class ProjectCategoriesResource extends CRUDLResource<ProjectCategory, Pr
 	private final ProjectService projectService;
 
 	@Inject
-	public ProjectCategoriesResource(final ProjectCategoryService categoryService,
-			final ProjectService projectService) {
-		super(categoryService);
+	public ProjectCategoriesResource(final ProjectCategoryService categoryService, final ProjectService projectService,
+			final HistoryService historyService) {
+		super(categoryService, historyService);
 		this.projectService = projectService;
 	}
 

@@ -17,6 +17,7 @@ import javax.ws.rs.core.MediaType;
 import io.dropwizard.hibernate.UnitOfWork;
 import nz.co.fit.projectmanagement.server.api.BaseIdable;
 import nz.co.fit.projectmanagement.server.api.Version;
+import nz.co.fit.projectmanagement.server.core.HistoryService;
 import nz.co.fit.projectmanagement.server.core.ServiceException;
 import nz.co.fit.projectmanagement.server.core.VersionService;
 import nz.co.fit.projectmanagement.server.dao.entities.VersionModel;
@@ -28,8 +29,8 @@ import nz.co.fit.projectmanagement.server.dao.entities.VersionModel;
 public class VersionsResource extends CRUDLResource<Version, VersionModel> {
 
 	@Inject
-	public VersionsResource(final VersionService versionService) {
-		super(versionService);
+	public VersionsResource(final VersionService versionService, final HistoryService historyService) {
+		super(versionService, historyService);
 	}
 
 	@POST
