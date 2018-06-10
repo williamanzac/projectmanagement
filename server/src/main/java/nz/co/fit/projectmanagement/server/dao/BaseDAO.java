@@ -1,6 +1,7 @@
 package nz.co.fit.projectmanagement.server.dao;
 
-import java.util.Collections;
+import static java.util.Arrays.asList;
+
 import java.util.List;
 
 import javax.persistence.criteria.CriteriaQuery;
@@ -18,7 +19,7 @@ public abstract class BaseDAO<T extends IdableModel> extends AbstractDAO<T> {
 	}
 
 	List<String> getExcludeList() {
-		return Collections.emptyList();
+		return asList("id", "timestamp", "createdOn", "createdBy", "updatedBy");
 	}
 
 	public T upsert(final T value) throws DAOException {

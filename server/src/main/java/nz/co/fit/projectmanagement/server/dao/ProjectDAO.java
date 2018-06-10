@@ -1,8 +1,11 @@
 package nz.co.fit.projectmanagement.server.dao;
 
 import static java.util.Arrays.asList;
+import static java.util.stream.Collectors.toList;
 
+import java.util.Collection;
 import java.util.List;
+import java.util.stream.Stream;
 
 import javax.inject.Inject;
 import javax.persistence.criteria.CriteriaBuilder;
@@ -26,7 +29,9 @@ public class ProjectDAO extends BaseDAO<ProjectModel> {
 	@Override
 	List<String> getExcludeList() {
 		// exclude the components and versions lists from the history
-		return asList("components", "versions");
+		final List<String> existingList = super.getExcludeList();
+		final List<String> additionalList = asList("components", "versions");
+		return Stream.of(existingList, additionalList).flatMap(Collection::stream).collect(toList());
 	}
 
 	public List<ProjectModel> listProjectsForCategory(final Long categoryId) throws DAOException {
