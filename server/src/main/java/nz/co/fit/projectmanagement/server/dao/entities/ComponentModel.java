@@ -6,10 +6,13 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 
+import org.hibernate.validator.constraints.NotEmpty;
+
 @Entity
 @Table(name = "component")
 public class ComponentModel extends BaseModel {
 	@Column(nullable = false)
+	@NotEmpty
 	private String name;
 	@Column
 	private String description;

@@ -6,18 +6,24 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 
+import org.hibernate.validator.constraints.Email;
+import org.hibernate.validator.constraints.NotEmpty;
+
 import nz.co.fit.projectmanagement.server.dao.AuthType;
 
 @Entity
 @Table(name = "user")
 public class UserModel extends BaseModel {
-	@Column
+	@Column(nullable = false)
+	@Email
 	private String email;
 	@Column
 	private String password;
-	@Column
+	@Column(nullable = false)
+	@NotEmpty
 	private AuthType authType;
-	@Column
+	@Column(nullable = false)
+	@NotEmpty
 	private String name;
 
 	public String getEmail() {

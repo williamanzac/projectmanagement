@@ -9,12 +9,15 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
+import org.hibernate.validator.constraints.NotEmpty;
+
 import nz.co.fit.projectmanagement.server.dao.VersionStatus;
 
 @Entity
 @Table(name = "version")
 public class VersionModel extends BaseModel {
 	@Column(nullable = false)
+	@NotEmpty
 	private String name;
 	@Column
 	private String description;
@@ -31,6 +34,7 @@ public class VersionModel extends BaseModel {
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date archivedDate;
 	@Column(nullable = false)
+	@NotEmpty
 	private Integer priority;
 
 	public String getName() {

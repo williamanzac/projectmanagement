@@ -12,10 +12,13 @@ import javax.persistence.OneToMany;
 import javax.persistence.OrderBy;
 import javax.persistence.Table;
 
+import org.hibernate.validator.constraints.NotEmpty;
+
 @Entity
 @Table(name = "project")
 public class ProjectModel extends BaseModel {
 	@Column(unique = true, nullable = false)
+	@NotEmpty
 	private String name;
 	@Column
 	private String description;
@@ -24,12 +27,15 @@ public class ProjectModel extends BaseModel {
 	@OrderBy("priority")
 	private List<VersionModel> versions = new ArrayList<>();
 	@Column(unique = true, nullable = false)
+	@NotEmpty
 	private String key;
 	@ManyToOne
 	@JoinColumn(name = "USER_ID", nullable = false)
+	@NotEmpty
 	private UserModel projectLead;
 	@ManyToOne
 	@JoinColumn(name = "CAT_ID", nullable = false)
+	@NotEmpty
 	private ProjectCategoryModel category;
 	@Column
 	private String url;

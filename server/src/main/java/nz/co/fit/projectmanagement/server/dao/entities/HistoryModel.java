@@ -6,18 +6,25 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 
+import org.hibernate.validator.constraints.NotEmpty;
+
 @Entity
 @Table(name = "history")
 public class HistoryModel extends BaseModel {
 	@Column(updatable = false, nullable = false)
+	@NotEmpty
 	private String entityClass;
 	@Column(updatable = false, nullable = false)
+	@NotEmpty
 	private String fieldName;
 	@Column(updatable = false, nullable = true)
+	@NotEmpty
 	private String oldValue;
 	@Column(updatable = false, nullable = true)
+	@NotEmpty
 	private String newValue;
 	@Column(updatable = false, nullable = false)
+	@NotEmpty
 	private Long objectId;
 
 	public String getFieldName() {

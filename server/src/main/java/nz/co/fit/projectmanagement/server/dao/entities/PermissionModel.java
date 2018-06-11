@@ -6,10 +6,13 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 
+import org.hibernate.validator.constraints.NotEmpty;
+
 @Entity
 @Table(name = "permissions")
 public class PermissionModel extends BaseModel {
-	@Column
+	@Column(nullable = false)
+	@NotEmpty
 	private String name;
 
 	public String getName() {
