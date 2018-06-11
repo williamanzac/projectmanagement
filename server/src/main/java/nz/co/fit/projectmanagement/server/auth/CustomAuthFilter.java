@@ -45,5 +45,4 @@ public class CustomAuthFilter extends AuthFilter<CustomCredentials, CustomAuthUs
 			throw new WebApplicationException("Credentials not valid", UNAUTHORIZED);
 		}
 	}
-
 }

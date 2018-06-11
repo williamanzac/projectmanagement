@@ -4,6 +4,8 @@ import java.security.Principal;
 
 public class CustomAuthUser implements Principal {
 
+	public static final CustomAuthUser EMPTY = new CustomAuthUser();
+
 	private String name;
 	private Long userId;
 
@@ -26,5 +28,4 @@ public class CustomAuthUser implements Principal {
 	public void setName(final String name) {
 		this.name = name;
 	}
-
 }

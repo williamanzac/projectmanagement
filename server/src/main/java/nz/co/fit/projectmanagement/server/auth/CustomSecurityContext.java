@@ -32,5 +32,4 @@ public class CustomSecurityContext implements SecurityContext {
 	public String getAuthenticationScheme() {
 		return "CUSTOM_TOKEN";
 	}
-
 }

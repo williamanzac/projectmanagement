@@ -4,6 +4,7 @@ import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.util.StringTokenizer;
 
 import javax.xml.bind.annotation.adapters.HexBinaryAdapter;
 
@@ -41,7 +42,7 @@ public class PasswordUtilities {
 		return bSalt;
 	}
 
-	private static byte[] getHash(final String password, final byte[] salt)
+	public static byte[] getHash(final String password, final byte[] salt)
 			throws UnsupportedEncodingException, NoSuchAlgorithmException {
 		final MessageDigest digest = MessageDigest.getInstance("SHA-256");
 		return getHash(password, salt, digest);
@@ -56,5 +57,13 @@ public class PasswordUtilities {
 
 	private static boolean isEncoded(final String text) {
 		return text.startsWith(ENCODE_PREFIX);
+	}
+
+	public static String[] decodeSaltAndPassword(String encodedPassword) {
+		encodedPassword = encodedPassword.replaceAll("HP1", "");
+		final StringTokenizer tokenizer = new StringTokenizer(encodedPassword, "|");
+		final String salt = tokenizer.nextToken();
+		final String hashPassword = tokenizer.nextToken();
+		return new String[] { salt, hashPassword };
 	}
 }

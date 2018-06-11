@@ -1,6 +1,8 @@
 package nz.co.fit.projectmanagement.server.auth;
 
-import org.apache.commons.lang3.StringUtils;
+import static java.util.Base64.getDecoder;
+
+import java.util.StringTokenizer;
 
 public class CustomCredentials {
 
@@ -27,13 +29,24 @@ public class CustomCredentials {
 	}
 
 	public static CustomCredentials getCredentials(final String authString) {
-		final CustomCredentials credentials = new CustomCredentials();
-		final String[] split = StringUtils.split(authString, " ");
-		if (split.length == 2) {
-			if ("BASIC".equals(split[0])) {
-				credentials.setUsername(split[1]);
-			}
-		}
+		// original "BASIC <Base64String>"
+		final StringTokenizer tokenizer = new StringTokenizer(authString, " ");
+		// skip first "BASIC"
+		tokenizer.nextToken();
+		final String encoded = tokenizer.nextToken();
+		final String decoded = new String(getDecoder().decode(encoded));
+		final CustomCredentials credentials = parse(decoded);
 		return credentials;
+	}
+
+	public static CustomCredentials parse(final String decoded) {
+		final StringTokenizer tokenizer = new StringTokenizer(decoded, ":");
+		if (tokenizer.countTokens() < 2) {
+			return null; // or empty
+		}
+		final CustomCredentials customCredentials = new CustomCredentials();
+		customCredentials.username = tokenizer.nextToken();
+		customCredentials.password = tokenizer.nextToken();
+		return customCredentials;
 	}
 }
