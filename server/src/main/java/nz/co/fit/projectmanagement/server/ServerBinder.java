@@ -8,6 +8,7 @@ import nz.co.fit.projectmanagement.server.core.HistoryService;
 import nz.co.fit.projectmanagement.server.core.PermissionService;
 import nz.co.fit.projectmanagement.server.core.ProjectCategoryService;
 import nz.co.fit.projectmanagement.server.core.ProjectService;
+import nz.co.fit.projectmanagement.server.core.TokenService;
 import nz.co.fit.projectmanagement.server.core.UserService;
 import nz.co.fit.projectmanagement.server.core.VersionService;
 import nz.co.fit.projectmanagement.server.dao.ComponentDAO;
@@ -15,6 +16,7 @@ import nz.co.fit.projectmanagement.server.dao.HistoryDAO;
 import nz.co.fit.projectmanagement.server.dao.PermissionsDAO;
 import nz.co.fit.projectmanagement.server.dao.ProjectCategoryDAO;
 import nz.co.fit.projectmanagement.server.dao.ProjectDAO;
+import nz.co.fit.projectmanagement.server.dao.TokenDAO;
 import nz.co.fit.projectmanagement.server.dao.UserDAO;
 import nz.co.fit.projectmanagement.server.dao.VersionDAO;
 
@@ -36,6 +38,7 @@ public class ServerBinder extends AbstractBinder {
 		bind(PermissionsDAO.class).to(PermissionsDAO.class);
 		bind(UserDAO.class).to(UserDAO.class);
 		bind(HistoryDAO.class).to(HistoryDAO.class);
+		bind(TokenDAO.class).to(TokenDAO.class);
 
 		bind(ComponentService.class).to(ComponentService.class);
 		bind(ProjectCategoryService.class).to(ProjectCategoryService.class);
@@ -44,5 +47,6 @@ public class ServerBinder extends AbstractBinder {
 		bind(PermissionService.class).to(PermissionService.class);
 		bind(UserService.class).to(UserService.class);
 		bind(HistoryService.class).to(HistoryService.class);
+		bind(TokenService.class).to(TokenService.class);
 	}
 }

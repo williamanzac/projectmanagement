@@ -17,6 +17,7 @@ import nz.co.fit.projectmanagement.server.auth.CustomAuthFilter;
 import nz.co.fit.projectmanagement.server.auth.CustomAuthUser;
 import nz.co.fit.projectmanagement.server.auth.CustomAuthenticator;
 import nz.co.fit.projectmanagement.server.core.ManagedHistoryService;
+import nz.co.fit.projectmanagement.server.dao.TokenDAO;
 import nz.co.fit.projectmanagement.server.dao.UserDAO;
 
 public class ServerApplication extends Application<ServerConfiguration> {
@@ -48,11 +49,13 @@ public class ServerApplication extends Application<ServerConfiguration> {
 	public void run(final ServerConfiguration configuration, final Environment environment) {
 		final SessionFactory sessionFactory = hibernate.getSessionFactory();
 		final UserDAO userDAO = new UserDAO(sessionFactory);
+		final TokenDAO tokenDAO = new TokenDAO();
 
 		environment.jersey().register(new ServerBinder(sessionFactory));
 
-		final CustomAuthenticator authenticator = new UnitOfWorkAwareProxyFactory(hibernate)
-				.create(CustomAuthenticator.class, new Class<?>[] { UserDAO.class }, new Object[] { userDAO });
+		final CustomAuthenticator authenticator = new UnitOfWorkAwareProxyFactory(hibernate).create(
+				CustomAuthenticator.class, new Class<?>[] { UserDAO.class, TokenDAO.class },
+				new Object[] { userDAO, tokenDAO });
 		final CustomAuthFilter filter = new CustomAuthFilter(authenticator);
 
 		environment.jersey().register(new AuthDynamicFeature(filter));

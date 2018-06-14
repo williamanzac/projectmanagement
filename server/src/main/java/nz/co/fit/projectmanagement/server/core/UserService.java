@@ -51,4 +51,8 @@ public class UserService extends CRUDLService<UserModel> {
 		}
 		return super.update(value);
 	}
+
+	public UserModel findByUsername(final String username) {
+		return ((UserDAO) dao).findByUsername(username);
+	}
 }

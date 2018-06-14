@@ -20,7 +20,6 @@ public class UserModel extends BaseModel {
 	@Column
 	private String password;
 	@Column(nullable = false)
-	@NotEmpty
 	private AuthType authType;
 	@Column(nullable = false)
 	@NotEmpty

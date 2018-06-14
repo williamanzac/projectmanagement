@@ -6,12 +6,15 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
 
+import nz.co.fit.projectmanagement.server.dao.AuthType;
+
 public class User extends BaseModel {
 	private String email;
 	private String password;
 	private String name;
 	private String role;
 	private String group;
+	private AuthType authType;
 
 	public User() {
 		// JSON constructor
@@ -74,7 +77,7 @@ public class User extends BaseModel {
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(email, group, name, password, role);
+		return Objects.hash(email, group, name, password, role, authType);
 	}
 
 	@Override
@@ -90,7 +93,15 @@ public class User extends BaseModel {
 		final User user = (User) o;
 
 		return Objects.equals(email, user.email) && Objects.equals(group, user.group) && Objects.equals(name, user.name)
-				&& Objects.equals(password, user.password) && Objects.equals(role, user.role);
+				&& Objects.equals(password, user.password) && Objects.equals(role, user.role)
+				&& Objects.equals(authType, user.authType);
+	}
 
+	public AuthType getAuthType() {
+		return authType;
+	}
+
+	public void setAuthType(final AuthType authType) {
+		this.authType = authType;
 	}
 }

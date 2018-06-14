@@ -1,72 +1,59 @@
 package nz.co.fit.projectmanagement.server.auth;
 
-import static nz.co.fit.projectmanagement.server.auth.CustomAuthUser.EMPTY;
-import static nz.co.fit.projectmanagement.server.core.PasswordUtilities.decodeSaltAndPassword;
-import static nz.co.fit.projectmanagement.server.core.PasswordUtilities.getHash;
+import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
-import java.io.UnsupportedEncodingException;
-import java.security.NoSuchAlgorithmException;
 import java.util.Optional;
 
 import javax.inject.Inject;
-import javax.xml.bind.annotation.adapters.HexBinaryAdapter;
 
 import io.dropwizard.auth.AuthenticationException;
 import io.dropwizard.auth.Authenticator;
 import io.dropwizard.hibernate.UnitOfWork;
+import nz.co.fit.projectmanagement.server.dao.DAOException;
+import nz.co.fit.projectmanagement.server.dao.TokenDAO;
 import nz.co.fit.projectmanagement.server.dao.UserDAO;
 import nz.co.fit.projectmanagement.server.dao.entities.UserModel;
 
 public class CustomAuthenticator implements Authenticator<CustomCredentials, CustomAuthUser> {
 
 	private final UserDAO userDAO;
+	private final TokenDAO tokenDAO;
 
 	@Inject
-	public CustomAuthenticator(final UserDAO userDAO) {
+	public CustomAuthenticator(final UserDAO userDAO, final TokenDAO tokenDAO) {
 		this.userDAO = userDAO;
+		this.tokenDAO = tokenDAO;
 	}
 
 	@Override
 	@UnitOfWork
 	public Optional<CustomAuthUser> authenticate(final CustomCredentials credentials) throws AuthenticationException {
 		if (credentials == null) {
-			return Optional.of(EMPTY);
-		}
-		final String username = credentials.getUsername();
-		final String password = credentials.getPassword();
-		final UserModel user = userDAO.findByUsername(username);
-		if (user == null) {
-			return Optional.of(EMPTY);
+			throw new AuthenticationException("No credentials provided.");
 		}
 
-		final String existingPassword = user.getPassword();
-		if (!authenticate(password, existingPassword)) {
-			// passwords do not match
-			return Optional.of(EMPTY);
-		}
-
-		final CustomAuthUser authUser = new CustomAuthUser();
-		authUser.setName(user.getEmail());
-		authUser.setUserId(user.getId());
-		return Optional.of(authUser);
-	}
-
-	boolean authenticate(final String suppliedPassword, final String storedPassword) {
-		final HexBinaryAdapter adapter = new HexBinaryAdapter();
-
-		final String[] saltDetails = decodeSaltAndPassword(storedPassword);
-		final String salt = saltDetails[0];
-		final String storedHash = saltDetails[1];
-		try {
-			final byte[] calculatedHash = getHash(suppliedPassword, adapter.unmarshal(salt));
-			final String calculatedPasswordHash = adapter.marshal(calculatedHash);
-			// logger.debug("comparing ... " + calculatedPasswordHash + " and " + storedHash);
-			if (storedHash.equals(calculatedPasswordHash)) {
-				return true;
+		// get user for the specified token
+		if (isNotBlank(credentials.getToken())) {
+			final String token = credentials.getToken();
+			final Long userId = tokenDAO.findUserIdForToken(token);
+			if (userId == null) {
+				throw new AuthenticationException("Invalid token provided.");
 			}
-		} catch (UnsupportedEncodingException | NoSuchAlgorithmException e) {
-			e.printStackTrace();
+
+			try {
+				final UserModel user = userDAO.read(userId);
+				if (user == null) {
+					throw new AuthenticationException("Invalid token provided.");
+				}
+
+				final CustomAuthUser authUser = new CustomAuthUser();
+				authUser.setName(user.getEmail());
+				authUser.setUserId(user.getId());
+				return Optional.of(authUser);
+			} catch (final DAOException e) {
+				throw new AuthenticationException(e);
+			}
 		}
-		return false;
+		throw new AuthenticationException("Invalid credentials provided.");
 	}
 }
