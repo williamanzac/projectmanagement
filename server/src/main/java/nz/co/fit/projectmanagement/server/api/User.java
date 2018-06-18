@@ -2,7 +2,6 @@ package nz.co.fit.projectmanagement.server.api;
 
 import java.util.Objects;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonProperty.Access;
 
@@ -12,8 +11,6 @@ public class User extends BaseModel {
 	private String email;
 	private String password;
 	private String name;
-	private String role;
-	private String group;
 	private AuthType authType;
 
 	public User() {
@@ -57,27 +54,9 @@ public class User extends BaseModel {
 		this.name = name;
 	}
 
-	@JsonIgnore
-	public String getRole() {
-		return role;
-	}
-
-	public void setRole(final String role) {
-		this.role = role;
-	}
-
-	@JsonIgnore
-	public String getGroup() {
-		return group;
-	}
-
-	public void setGroup(final String group) {
-		this.group = group;
-	}
-
 	@Override
 	public int hashCode() {
-		return Objects.hash(email, group, name, password, role, authType);
+		return Objects.hash(email, name, password, authType);
 	}
 
 	@Override
@@ -92,9 +71,8 @@ public class User extends BaseModel {
 
 		final User user = (User) o;
 
-		return Objects.equals(email, user.email) && Objects.equals(group, user.group) && Objects.equals(name, user.name)
-				&& Objects.equals(password, user.password) && Objects.equals(role, user.role)
-				&& Objects.equals(authType, user.authType);
+		return Objects.equals(email, user.email) && Objects.equals(name, user.name)
+				&& Objects.equals(password, user.password) && Objects.equals(authType, user.authType);
 	}
 
 	public AuthType getAuthType() {

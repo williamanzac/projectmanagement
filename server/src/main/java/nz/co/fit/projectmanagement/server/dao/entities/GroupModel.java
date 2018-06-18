@@ -8,13 +8,14 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
+import javax.persistence.OrderBy;
 import javax.persistence.Table;
 
 import org.hibernate.validator.constraints.NotEmpty;
 
 @Entity
-@Table(name = "role")
-public class RoleModel extends BaseModel {
+@Table(name = "group")
+public class GroupModel extends BaseModel {
 	@Column(unique = true, nullable = false)
 	@NotEmpty
 	private String name;
@@ -22,10 +23,8 @@ public class RoleModel extends BaseModel {
 	private String description;
 	@OneToMany()
 	@JoinColumn(name = "USER_ID")
+	@OrderBy("name")
 	private List<UserModel> users = new ArrayList<>();
-	@OneToMany()
-	@JoinColumn(name = "GROUP_ID")
-	private List<GroupModel> groups = new ArrayList<>();
 
 	public String getName() {
 		return name;
@@ -66,16 +65,8 @@ public class RoleModel extends BaseModel {
 			return false;
 		}
 
-		final RoleModel p = (RoleModel) o;
+		final GroupModel p = (GroupModel) o;
 
 		return Objects.equals(name, p.name) && Objects.equals(description, p.description);
-	}
-
-	public List<GroupModel> getGroups() {
-		return groups;
-	}
-
-	public void setGroups(final List<GroupModel> groups) {
-		this.groups = groups;
 	}
 }

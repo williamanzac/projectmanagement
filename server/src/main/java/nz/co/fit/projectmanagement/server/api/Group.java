@@ -2,10 +2,9 @@ package nz.co.fit.projectmanagement.server.api;
 
 import java.util.Objects;
 
-public class Role extends BaseModel {
+public class Group extends BaseModel {
 	private String name;
 	private String description;
-	private BaseIdable project;
 
 	public String getName() {
 		return name;
@@ -23,17 +22,9 @@ public class Role extends BaseModel {
 		this.description = description;
 	}
 
-	public BaseIdable getProject() {
-		return project;
-	}
-
-	public void setProject(final BaseIdable project) {
-		this.project = project;
-	}
-
 	@Override
 	public int hashCode() {
-		return Objects.hash(name, description, project);
+		return Objects.hash(name, description);
 	}
 
 	@Override
@@ -46,9 +37,8 @@ public class Role extends BaseModel {
 			return false;
 		}
 
-		final Role p = (Role) o;
+		final Group p = (Group) o;
 
-		return Objects.equals(name, p.name) && Objects.equals(description, p.description)
-				&& Objects.equals(project, p.project);
+		return Objects.equals(name, p.name) && Objects.equals(description, p.description);
 	}
 }

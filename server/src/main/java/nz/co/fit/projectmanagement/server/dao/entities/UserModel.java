@@ -76,6 +76,5 @@ public class UserModel extends BaseModel {
 
 		return Objects.equals(email, user.email) && Objects.equals(name, user.name)
 				&& Objects.equals(password, user.password);
-
 	}
 }

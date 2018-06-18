@@ -10,6 +10,7 @@ import javax.persistence.criteria.Root;
 import org.hibernate.SessionFactory;
 import org.jvnet.hk2.annotations.Service;
 
+import nz.co.fit.projectmanagement.server.dao.entities.GroupModel;
 import nz.co.fit.projectmanagement.server.dao.entities.ProjectModel;
 import nz.co.fit.projectmanagement.server.dao.entities.RoleModel;
 import nz.co.fit.projectmanagement.server.dao.entities.UserModel;
@@ -43,6 +44,17 @@ public class RoleDAO extends BaseDAO<RoleModel> {
 		final Root<RoleModel> roleRoot = query.from(getEntityClass());
 		final Root<UserModel> userRoot = query.from(UserModel.class);
 		query.where(cb.equal(userRoot.get("id"), userId));
+		query.select(roleRoot);
+
+		return list(query);
+	}
+
+	public List<RoleModel> listRolesForGroup(final Long groupId) throws DAOException {
+		final CriteriaBuilder cb = currentSession().getCriteriaBuilder();
+		final CriteriaQuery<RoleModel> query = cb.createQuery(getEntityClass());
+		final Root<RoleModel> roleRoot = query.from(getEntityClass());
+		final Root<GroupModel> groupRoot = query.from(GroupModel.class);
+		query.where(cb.equal(groupRoot.get("id"), groupId));
 		query.select(roleRoot);
 
 		return list(query);

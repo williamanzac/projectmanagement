@@ -4,6 +4,7 @@ import org.glassfish.hk2.utilities.binding.AbstractBinder;
 import org.hibernate.SessionFactory;
 
 import nz.co.fit.projectmanagement.server.core.ComponentService;
+import nz.co.fit.projectmanagement.server.core.GroupService;
 import nz.co.fit.projectmanagement.server.core.HistoryService;
 import nz.co.fit.projectmanagement.server.core.PermissionService;
 import nz.co.fit.projectmanagement.server.core.ProjectCategoryService;
@@ -13,6 +14,7 @@ import nz.co.fit.projectmanagement.server.core.TokenService;
 import nz.co.fit.projectmanagement.server.core.UserService;
 import nz.co.fit.projectmanagement.server.core.VersionService;
 import nz.co.fit.projectmanagement.server.dao.ComponentDAO;
+import nz.co.fit.projectmanagement.server.dao.GroupDAO;
 import nz.co.fit.projectmanagement.server.dao.HistoryDAO;
 import nz.co.fit.projectmanagement.server.dao.PermissionsDAO;
 import nz.co.fit.projectmanagement.server.dao.ProjectCategoryDAO;
@@ -42,6 +44,7 @@ public class ServerBinder extends AbstractBinder {
 		bind(HistoryDAO.class).to(HistoryDAO.class);
 		bind(TokenDAO.class).to(TokenDAO.class);
 		bind(RoleDAO.class).to(RoleDAO.class);
+		bind(GroupDAO.class).to(GroupDAO.class);
 
 		bind(ComponentService.class).to(ComponentService.class);
 		bind(ProjectCategoryService.class).to(ProjectCategoryService.class);
@@ -52,5 +55,6 @@ public class ServerBinder extends AbstractBinder {
 		bind(HistoryService.class).to(HistoryService.class);
 		bind(TokenService.class).to(TokenService.class);
 		bind(RoleService.class).to(RoleService.class);
+		bind(GroupService.class).to(GroupService.class);
 	}
 }
