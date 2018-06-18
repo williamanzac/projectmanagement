@@ -1,5 +1,8 @@
 package nz.co.fit.projectmanagement.server.core;
 
+import static java.util.stream.Collectors.toList;
+
+import java.util.Collection;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -9,9 +12,12 @@ import org.jvnet.hk2.annotations.Service;
 import nz.co.fit.projectmanagement.server.dao.DAOException;
 import nz.co.fit.projectmanagement.server.dao.ProjectDAO;
 import nz.co.fit.projectmanagement.server.dao.UserDAO;
+import nz.co.fit.projectmanagement.server.dao.entities.ComponentModel;
 import nz.co.fit.projectmanagement.server.dao.entities.ProjectCategoryModel;
 import nz.co.fit.projectmanagement.server.dao.entities.ProjectModel;
+import nz.co.fit.projectmanagement.server.dao.entities.RoleModel;
 import nz.co.fit.projectmanagement.server.dao.entities.UserModel;
+import nz.co.fit.projectmanagement.server.dao.entities.VersionModel;
 
 @Service
 public class ProjectService extends CRUDLService<ProjectModel> {
@@ -20,16 +26,19 @@ public class ProjectService extends CRUDLService<ProjectModel> {
 	private final ComponentService componentService;
 	private final ProjectCategoryService categoryService;
 	private final UserService userService;
+	private final RoleService roleService;
 
 	@Inject
 	public ProjectService(final ProjectDAO projectDAO, final VersionService versionService,
 			final ComponentService componentService, final ProjectCategoryService categoryService,
-			final UserService userService, final HistoryService historyService, final UserDAO userDAO) {
+			final UserService userService, final HistoryService historyService, final UserDAO userDAO,
+			final RoleService roleService) {
 		super(projectDAO, historyService, userDAO);
 		this.versionService = versionService;
 		this.componentService = componentService;
 		this.categoryService = categoryService;
 		this.userService = userService;
+		this.roleService = roleService;
 	}
 
 	@Override
@@ -92,12 +101,7 @@ public class ProjectService extends CRUDLService<ProjectModel> {
 
 	@Override
 	public void delete(final Long id) throws ServiceException {
-		ProjectModel existingProject;
-		try {
-			existingProject = dao.read(id);
-		} catch (final DAOException e) {
-			throw new ServiceException(e);
-		}
+		final ProjectModel existingProject = read(id);
 		// delete the versions, components
 		existingProject.getVersions().forEach(v -> {
 			try {
@@ -123,5 +127,57 @@ public class ProjectService extends CRUDLService<ProjectModel> {
 		} catch (final DAOException e) {
 			throw new ServiceException(e);
 		}
+	}
+
+	public VersionModel addVersionToProject(final Long projectId, final VersionModel version) throws ServiceException {
+		final ProjectModel projModel = read(projectId);
+		final List<VersionModel> versions = projModel.getVersions();
+		final long matchingName = versions.stream().filter(v -> v.getName().equals(version.getName())).count();
+		if (matchingName > 0) {
+			throw new ServiceException("There is already a version '" + version.getName() + "' for this project.");
+		}
+
+		final int length = versions.size();
+		version.setPriority(length + 1);
+		versions.add(version);
+		final VersionModel createVersion = versionService.create(version);
+		update(projModel);
+		return createVersion;
+	}
+
+	public ComponentModel addComponentToProject(final Long projectId, final ComponentModel component)
+			throws ServiceException {
+		final ProjectModel projModel = read(projectId);
+		final List<ComponentModel> components = projModel.getComponents();
+		final long matchingName = components.stream().filter(v -> v.getName().equals(component.getName())).count();
+		if (matchingName > 0) {
+			throw new ServiceException("There is already a component '" + component.getName() + "' for this project.");
+		}
+
+		components.add(component);
+		final ComponentModel createComponent = componentService.create(component);
+		update(projModel);
+		return createComponent;
+	}
+
+	public RoleModel addRoleToProject(final Long projectId, final RoleModel role) throws ServiceException {
+		final ProjectModel projModel = read(projectId);
+		final List<RoleModel> roles = projModel.getRoles();
+		final long matchingName = roles.stream().filter(v -> v.getName().equals(role.getName())).count();
+		if (matchingName > 0) {
+			throw new ServiceException("There is already a role '" + role.getName() + "' for this project.");
+		}
+
+		roles.add(role);
+		final RoleModel createRole = roleService.create(role);
+		update(projModel);
+		return createRole;
+	}
+
+	public List<UserModel> listUsersForProject(final Long projectId) throws ServiceException {
+		final ProjectModel projectModel = read(projectId);
+		final List<UserModel> users = projectModel.getRoles().stream().map(RoleModel::getUsers)
+				.flatMap(Collection::stream).distinct().collect(toList());
+		return users;
 	}
 }

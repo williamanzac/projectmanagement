@@ -43,6 +43,9 @@ public class ProjectModel extends BaseModel {
 	@JoinColumn(name = "COMP_ID")
 	@OrderBy("name")
 	private List<ComponentModel> components = new ArrayList<>();
+	@OneToMany(orphanRemoval = true)
+	@JoinColumn(name = "ROLE_ID")
+	private List<RoleModel> roles = new ArrayList<>();
 
 	public String getName() {
 		return name;
@@ -128,5 +131,13 @@ public class ProjectModel extends BaseModel {
 
 	public void setComponents(final List<ComponentModel> components) {
 		this.components = components;
+	}
+
+	public List<RoleModel> getRoles() {
+		return roles;
+	}
+
+	public void setRoles(final List<RoleModel> roles) {
+		this.roles = roles;
 	}
 }
