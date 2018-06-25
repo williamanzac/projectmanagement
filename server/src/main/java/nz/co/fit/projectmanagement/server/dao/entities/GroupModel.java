@@ -14,7 +14,7 @@ import javax.persistence.Table;
 import org.hibernate.validator.constraints.NotEmpty;
 
 @Entity
-@Table(name = "group")
+@Table(name = "usergroup")
 public class GroupModel extends BaseModel {
 	@Column(unique = true, nullable = false)
 	@NotEmpty
