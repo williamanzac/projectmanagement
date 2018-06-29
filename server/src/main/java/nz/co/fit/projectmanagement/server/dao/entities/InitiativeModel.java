@@ -1,31 +1,21 @@
 package nz.co.fit.projectmanagement.server.dao.entities;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.JoinColumn;
-import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import org.hibernate.validator.constraints.NotEmpty;
 
 @Entity
-@Table(name = "role")
-public class RoleModel extends BaseModel {
+@Table(name = "initiative")
+public class InitiativeModel extends BaseModel {
 	@Column(nullable = false)
 	@NotEmpty
 	private String name;
 	@Column
 	private String description;
-	@OneToMany()
-	@JoinColumn(name = "USER_ID")
-	private List<UserModel> users = new ArrayList<>();
-	@OneToMany()
-	@JoinColumn(name = "GROUP_ID")
-	private List<GroupModel> groups = new ArrayList<>();
 
 	public String getName() {
 		return name;
@@ -43,14 +33,6 @@ public class RoleModel extends BaseModel {
 		this.description = description;
 	}
 
-	public List<UserModel> getUsers() {
-		return users;
-	}
-
-	public void setUsers(final List<UserModel> users) {
-		this.users = users;
-	}
-
 	@Override
 	public int hashCode() {
 		return Objects.hash(name, description);
@@ -66,16 +48,8 @@ public class RoleModel extends BaseModel {
 			return false;
 		}
 
-		final RoleModel p = (RoleModel) o;
+		final InitiativeModel p = (InitiativeModel) o;
 
 		return Objects.equals(name, p.name) && Objects.equals(description, p.description);
-	}
-
-	public List<GroupModel> getGroups() {
-		return groups;
-	}
-
-	public void setGroups(final List<GroupModel> groups) {
-		this.groups = groups;
 	}
 }

@@ -46,6 +46,15 @@ public class ProjectModel extends BaseModel {
 	@OneToMany(orphanRemoval = true)
 	@JoinColumn(name = "ROLE_ID")
 	private List<RoleModel> roles = new ArrayList<>();
+	@OneToMany(orphanRemoval = true)
+	@JoinColumn(name = "THEME_ID")
+	private List<ThemeModel> themes = new ArrayList<>();
+	@OneToMany(orphanRemoval = true)
+	@JoinColumn(name = "INIT_ID")
+	private List<InitiativeModel> initiatives = new ArrayList<>();
+	@OneToMany(orphanRemoval = true)
+	@JoinColumn(name = "EPIC_ID")
+	private List<EpicModel> epics = new ArrayList<>();
 
 	public String getName() {
 		return name;
@@ -139,5 +148,29 @@ public class ProjectModel extends BaseModel {
 
 	public void setRoles(final List<RoleModel> roles) {
 		this.roles = roles;
+	}
+
+	public List<ThemeModel> getThemes() {
+		return themes;
+	}
+
+	public void setThemes(final List<ThemeModel> themes) {
+		this.themes = themes;
+	}
+
+	public List<InitiativeModel> getInitiatives() {
+		return initiatives;
+	}
+
+	public void setInitiatives(final List<InitiativeModel> initiatives) {
+		this.initiatives = initiatives;
+	}
+
+	public List<EpicModel> getEpics() {
+		return epics;
+	}
+
+	public void setEpics(final List<EpicModel> epics) {
+		this.epics = epics;
 	}
 }

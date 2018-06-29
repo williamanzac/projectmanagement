@@ -2,7 +2,7 @@ package nz.co.fit.projectmanagement.server.api;
 
 import java.util.Objects;
 
-public class Role extends BaseModel {
+public class Initiative extends BaseModel {
 	private String name;
 	private String description;
 
@@ -37,7 +37,7 @@ public class Role extends BaseModel {
 			return false;
 		}
 
-		final Role p = (Role) o;
+		final Initiative p = (Initiative) o;
 
 		return Objects.equals(name, p.name) && Objects.equals(description, p.description);
 	}

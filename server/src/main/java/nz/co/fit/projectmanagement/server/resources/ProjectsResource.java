@@ -17,16 +17,21 @@ import javax.ws.rs.core.MediaType;
 import io.dropwizard.hibernate.UnitOfWork;
 import nz.co.fit.projectmanagement.server.api.BaseIdable;
 import nz.co.fit.projectmanagement.server.api.Component;
+import nz.co.fit.projectmanagement.server.api.Epic;
+import nz.co.fit.projectmanagement.server.api.Initiative;
 import nz.co.fit.projectmanagement.server.api.Project;
 import nz.co.fit.projectmanagement.server.api.Role;
+import nz.co.fit.projectmanagement.server.api.Theme;
 import nz.co.fit.projectmanagement.server.api.Version;
 import nz.co.fit.projectmanagement.server.core.HistoryService;
 import nz.co.fit.projectmanagement.server.core.ProjectService;
-import nz.co.fit.projectmanagement.server.core.RoleService;
 import nz.co.fit.projectmanagement.server.core.ServiceException;
 import nz.co.fit.projectmanagement.server.dao.entities.ComponentModel;
+import nz.co.fit.projectmanagement.server.dao.entities.EpicModel;
+import nz.co.fit.projectmanagement.server.dao.entities.InitiativeModel;
 import nz.co.fit.projectmanagement.server.dao.entities.ProjectModel;
 import nz.co.fit.projectmanagement.server.dao.entities.RoleModel;
+import nz.co.fit.projectmanagement.server.dao.entities.ThemeModel;
 import nz.co.fit.projectmanagement.server.dao.entities.VersionModel;
 
 @Path("/projects")
@@ -35,13 +40,9 @@ import nz.co.fit.projectmanagement.server.dao.entities.VersionModel;
 @PermitAll
 public class ProjectsResource extends CRUDLResource<Project, ProjectModel> {
 
-	private final RoleService roleService;
-
 	@Inject
-	public ProjectsResource(final ProjectService projectService, final HistoryService historyService,
-			final RoleService roleService) {
+	public ProjectsResource(final ProjectService projectService, final HistoryService historyService) {
 		super(projectService, historyService);
-		this.roleService = roleService;
 	}
 
 	@GET
@@ -103,7 +104,7 @@ public class ProjectsResource extends CRUDLResource<Project, ProjectModel> {
 	@UnitOfWork
 	public List<BaseIdable> listRoles(final @PathParam("id") Long projectId) throws ResourceException {
 		try {
-			return roleService.getRolesForProject(projectId).stream().map(ModelUtilities::toIdable).collect(toList());
+			return service.read(projectId).getRoles().stream().map(ModelUtilities::toIdable).collect(toList());
 		} catch (final ServiceException e) {
 			throw new ResourceException(e);
 		}
@@ -134,5 +135,84 @@ public class ProjectsResource extends CRUDLResource<Project, ProjectModel> {
 		} catch (final ServiceException e) {
 			throw new ResourceException(e);
 		}
+	}
+
+	@GET
+	@Path("/{id}/themes")
+	@UnitOfWork
+	public List<BaseIdable> listThemes(final @PathParam("id") Long projectId) throws ResourceException {
+		try {
+			return service.read(projectId).getThemes().stream().map(ModelUtilities::toIdable).collect(toList());
+		} catch (final ServiceException e) {
+			throw new ResourceException(e);
+		}
+	}
+
+	@POST
+	@Path("/{id}/themes")
+	@UnitOfWork
+	public Theme createTheme(final @PathParam("id") Long projectId, final Theme theme) throws ResourceException {
+		final ThemeModel model = ModelUtilities.convert(theme, ThemeModel.class);
+		final ThemeModel createTheme;
+		try {
+			createTheme = ((ProjectService) service).addThemeToProject(projectId, model);
+		} catch (final ServiceException e) {
+			throw new ResourceException(e);
+		}
+		final Theme retTheme = ModelUtilities.convert(createTheme, Theme.class);
+		return retTheme;
+	}
+
+	@GET
+	@Path("/{id}/initiatives")
+	@UnitOfWork
+	public List<BaseIdable> listInitiatives(final @PathParam("id") Long projectId) throws ResourceException {
+		try {
+			return service.read(projectId).getInitiatives().stream().map(ModelUtilities::toIdable).collect(toList());
+		} catch (final ServiceException e) {
+			throw new ResourceException(e);
+		}
+	}
+
+	@POST
+	@Path("/{id}/initiatives")
+	@UnitOfWork
+	public Initiative createInitiative(final @PathParam("id") Long projectId, final Initiative initiative)
+			throws ResourceException {
+		final InitiativeModel model = ModelUtilities.convert(initiative, InitiativeModel.class);
+		final InitiativeModel createInitiative;
+		try {
+			createInitiative = ((ProjectService) service).addInitiativeToProject(projectId, model);
+		} catch (final ServiceException e) {
+			throw new ResourceException(e);
+		}
+		final Initiative retInitiative = ModelUtilities.convert(createInitiative, Initiative.class);
+		return retInitiative;
+	}
+
+	@GET
+	@Path("/{id}/epics")
+	@UnitOfWork
+	public List<BaseIdable> listEpics(final @PathParam("id") Long projectId) throws ResourceException {
+		try {
+			return service.read(projectId).getEpics().stream().map(ModelUtilities::toIdable).collect(toList());
+		} catch (final ServiceException e) {
+			throw new ResourceException(e);
+		}
+	}
+
+	@POST
+	@Path("/{id}/epics")
+	@UnitOfWork
+	public Epic createEpic(final @PathParam("id") Long projectId, final Epic epic) throws ResourceException {
+		final EpicModel model = ModelUtilities.convert(epic, EpicModel.class);
+		final EpicModel createEpic;
+		try {
+			createEpic = ((ProjectService) service).addEpicToProject(projectId, model);
+		} catch (final ServiceException e) {
+			throw new ResourceException(e);
+		}
+		final Epic retEpic = ModelUtilities.convert(createEpic, Epic.class);
+		return retEpic;
 	}
 }

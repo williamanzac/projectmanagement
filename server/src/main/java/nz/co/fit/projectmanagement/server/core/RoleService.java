@@ -27,14 +27,6 @@ public class RoleService extends CRUDLService<RoleModel> {
 		this.groupService = groupService;
 	}
 
-	public List<RoleModel> getRolesForProject(final Long projectId) throws ServiceException {
-		try {
-			return ((RoleDAO) dao).getRolesForProject(projectId);
-		} catch (final DAOException e) {
-			throw new ServiceException(e);
-		}
-	}
-
 	public RoleModel addUserToRole(final Long roleId, final Long userId) throws ServiceException {
 		final RoleModel roleModel = read(roleId);
 		final UserModel userModel = userService.read(userId);

@@ -15,7 +15,7 @@
 	</properties>
 	<modules>
 		<module>testserver</module>
-		<module>auth</module>
+		
     <module>ui</module>
     <module>server</module>
     <module>tests</module>
