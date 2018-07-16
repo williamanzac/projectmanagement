@@ -74,7 +74,7 @@ public class DAOUtilities {
 					}
 
 					// post the event to the bus
-					EventBus.getDefault().post(new HistoryEvent(fieldName, existingString, valueString, existing));
+					EventBus.getDefault().post(new UpdateEvent(fieldName, existingString, valueString, existing));
 
 					// get the setter method
 					final Method writeMethod = descriptor.getWriteMethod();
@@ -89,6 +89,10 @@ public class DAOUtilities {
 				e1.printStackTrace();
 			}
 		});
+	}
+
+	public static <T extends IdableModel> void deleteHistory(final T value) throws DAOException {
+		EventBus.getDefault().post(new DeleteEvent(value));
 	}
 
 	/**

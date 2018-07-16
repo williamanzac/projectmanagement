@@ -55,6 +55,9 @@ public class ProjectModel extends BaseModel {
 	@OneToMany(orphanRemoval = true)
 	@JoinColumn(name = "EPIC_ID")
 	private List<EpicModel> epics = new ArrayList<>();
+	@OneToMany(orphanRemoval = true)
+	@JoinColumn(name = "STATUS_ID")
+	private List<IssueStatusModel> statuses = new ArrayList<>();
 
 	public String getName() {
 		return name;
@@ -172,5 +175,13 @@ public class ProjectModel extends BaseModel {
 
 	public void setEpics(final List<EpicModel> epics) {
 		this.epics = epics;
+	}
+
+	public List<IssueStatusModel> getStatuses() {
+		return statuses;
+	}
+
+	public void setStatuses(final List<IssueStatusModel> statuses) {
+		this.statuses = statuses;
 	}
 }

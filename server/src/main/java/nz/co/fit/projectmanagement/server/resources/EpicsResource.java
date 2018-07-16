@@ -13,26 +13,26 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
 import nz.co.fit.projectmanagement.server.api.BaseIdable;
-import nz.co.fit.projectmanagement.server.api.Initiative;
+import nz.co.fit.projectmanagement.server.api.Epic;
+import nz.co.fit.projectmanagement.server.core.EpicService;
 import nz.co.fit.projectmanagement.server.core.HistoryService;
-import nz.co.fit.projectmanagement.server.core.InitiativeService;
-import nz.co.fit.projectmanagement.server.dao.entities.InitiativeModel;
+import nz.co.fit.projectmanagement.server.dao.entities.EpicModel;
 
-@Path("/initiatives")
+@Path("/epics")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 @PermitAll
-public class InitiativeResource extends CRUDLResource<Initiative, InitiativeModel> {
+public class EpicsResource extends CRUDLResource<Epic, EpicModel> {
 
 	@Inject
-	public InitiativeResource(final InitiativeService componentService, final HistoryService historyService) {
+	public EpicsResource(final EpicService componentService, final HistoryService historyService) {
 		super(componentService, historyService);
 	}
 
 	@POST
 	@DenyAll
 	@Override
-	public Initiative create(final Initiative value) throws ResourceException {
+	public Epic create(final Epic value) throws ResourceException {
 		// components should be created via the project resource
 		return null;
 	}

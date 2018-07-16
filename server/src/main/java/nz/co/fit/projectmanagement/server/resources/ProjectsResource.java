@@ -19,16 +19,21 @@ import nz.co.fit.projectmanagement.server.api.BaseIdable;
 import nz.co.fit.projectmanagement.server.api.Component;
 import nz.co.fit.projectmanagement.server.api.Epic;
 import nz.co.fit.projectmanagement.server.api.Initiative;
+import nz.co.fit.projectmanagement.server.api.Issue;
+import nz.co.fit.projectmanagement.server.api.IssueStatus;
 import nz.co.fit.projectmanagement.server.api.Project;
 import nz.co.fit.projectmanagement.server.api.Role;
 import nz.co.fit.projectmanagement.server.api.Theme;
 import nz.co.fit.projectmanagement.server.api.Version;
 import nz.co.fit.projectmanagement.server.core.HistoryService;
+import nz.co.fit.projectmanagement.server.core.IssueService;
 import nz.co.fit.projectmanagement.server.core.ProjectService;
 import nz.co.fit.projectmanagement.server.core.ServiceException;
 import nz.co.fit.projectmanagement.server.dao.entities.ComponentModel;
 import nz.co.fit.projectmanagement.server.dao.entities.EpicModel;
 import nz.co.fit.projectmanagement.server.dao.entities.InitiativeModel;
+import nz.co.fit.projectmanagement.server.dao.entities.IssueModel;
+import nz.co.fit.projectmanagement.server.dao.entities.IssueStatusModel;
 import nz.co.fit.projectmanagement.server.dao.entities.ProjectModel;
 import nz.co.fit.projectmanagement.server.dao.entities.RoleModel;
 import nz.co.fit.projectmanagement.server.dao.entities.ThemeModel;
@@ -40,9 +45,13 @@ import nz.co.fit.projectmanagement.server.dao.entities.VersionModel;
 @PermitAll
 public class ProjectsResource extends CRUDLResource<Project, ProjectModel> {
 
+	private final IssueService issueService;
+
 	@Inject
-	public ProjectsResource(final ProjectService projectService, final HistoryService historyService) {
+	public ProjectsResource(final ProjectService projectService, final HistoryService historyService,
+			final IssueService issueService) {
 		super(projectService, historyService);
+		this.issueService = issueService;
 	}
 
 	@GET
@@ -214,5 +223,65 @@ public class ProjectsResource extends CRUDLResource<Project, ProjectModel> {
 		}
 		final Epic retEpic = ModelUtilities.convert(createEpic, Epic.class);
 		return retEpic;
+	}
+
+	@GET
+	@Path("/{id}/statuses")
+	@UnitOfWork
+	public List<BaseIdable> listStatuses(final @PathParam("id") Long projectId) throws ResourceException {
+		try {
+			return service.read(projectId).getStatuses().stream().map(ModelUtilities::toIdable).collect(toList());
+		} catch (final ServiceException e) {
+			throw new ResourceException(e);
+		}
+	}
+
+	@POST
+	@Path("/{id}/statuses")
+	@UnitOfWork
+	public IssueStatus createStatus(final @PathParam("id") Long projectId, final IssueStatus status)
+			throws ResourceException {
+		final IssueStatusModel model = ModelUtilities.convert(status, IssueStatusModel.class);
+		IssueStatusModel createIssueStatus;
+		try {
+			createIssueStatus = ((ProjectService) service).addIssueStatusToProject(projectId, model);
+		} catch (final ServiceException e) {
+			throw new ResourceException(e);
+		}
+		final IssueStatus retIssueStatus = ModelUtilities.convert(createIssueStatus, IssueStatus.class);
+		return retIssueStatus;
+	}
+
+	@GET
+	@Path("/{id}/issues")
+	@UnitOfWork
+	public List<BaseIdable> listIssuesByProject(final @PathParam("id") Long projectId) throws ResourceException {
+		List<IssueModel> issues;
+		try {
+			issues = issueService.listIssuesByProject(projectId);
+		} catch (final ServiceException e) {
+			throw new ResourceException(e);
+		}
+		return issues.stream().map(ModelUtilities::toIdable).collect(toList());
+	}
+
+	@POST
+	@Path("/{id}/issues")
+	@UnitOfWork
+	public Issue createIssue(final @PathParam("id") Long projectId, final Issue issue) throws ResourceException {
+		// use project id from path
+		final BaseIdable project = new BaseIdable();
+		project.setId(projectId);
+		issue.setProject(project);
+
+		final IssueModel model = ModelUtilities.convert(issue, IssueModel.class);
+		IssueModel createIssue;
+		try {
+			createIssue = issueService.create(model);
+		} catch (final ServiceException e) {
+			throw new ResourceException(e);
+		}
+		final Issue retIssue = ModelUtilities.convert(createIssue, Issue.class);
+		return retIssue;
 	}
 }

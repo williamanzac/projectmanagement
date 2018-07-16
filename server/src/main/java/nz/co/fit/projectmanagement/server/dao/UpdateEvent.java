@@ -2,19 +2,19 @@ package nz.co.fit.projectmanagement.server.dao;
 
 import nz.co.fit.projectmanagement.server.dao.entities.IdableModel;
 
-public class HistoryEvent {
+public class UpdateEvent {
 	private String entityClass;
 	private String fieldName;
 	private String oldValue;
 	private String newValue;
 	private Long objectId;
 
-	public <E extends IdableModel> HistoryEvent(final String fieldName, final String oldValue, final String newValue,
+	public <E extends IdableModel> UpdateEvent(final String fieldName, final String oldValue, final String newValue,
 			final E object) {
 		this(object.getClass().getName(), fieldName, oldValue, newValue, object.getId());
 	}
 
-	public HistoryEvent(final String entityClass, final String fieldName, final String oldValue, final String newValue,
+	public UpdateEvent(final String entityClass, final String fieldName, final String oldValue, final String newValue,
 			final Long objectId) {
 		this.entityClass = entityClass;
 		this.fieldName = fieldName;

@@ -29,11 +29,6 @@ public class HistoryDAO extends BaseDAO<HistoryModel> {
 		return super.upsert(history);
 	}
 
-	public <E extends IdableModel> void deleteHistoryForObject(final Long id, final Class<E> entityClass) {
-		final List<HistoryModel> historyForObject = historyForObject(id, entityClass);
-		historyForObject.forEach(h -> currentSession().delete(h));
-	}
-
 	public <E extends IdableModel> List<HistoryModel> historyForObject(final Long id, final Class<E> entityClass) {
 		final CriteriaBuilder cb = currentSession().getCriteriaBuilder();
 		final CriteriaQuery<HistoryModel> query = cb.createQuery(getEntityClass());

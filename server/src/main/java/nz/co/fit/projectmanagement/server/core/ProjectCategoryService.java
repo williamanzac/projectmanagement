@@ -18,8 +18,8 @@ public class ProjectCategoryService extends CRUDLService<ProjectCategoryModel> {
 
 	@Inject
 	public ProjectCategoryService(final ProjectCategoryDAO categoryDAO, final ProjectService projectService,
-			final HistoryService historyService, final UserDAO userDAO) {
-		super(categoryDAO, historyService, userDAO);
+			final UserDAO userDAO) {
+		super(categoryDAO);
 		this.projectService = projectService;
 	}
 

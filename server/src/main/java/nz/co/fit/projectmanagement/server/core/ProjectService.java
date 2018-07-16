@@ -11,10 +11,10 @@ import org.jvnet.hk2.annotations.Service;
 
 import nz.co.fit.projectmanagement.server.dao.DAOException;
 import nz.co.fit.projectmanagement.server.dao.ProjectDAO;
-import nz.co.fit.projectmanagement.server.dao.UserDAO;
 import nz.co.fit.projectmanagement.server.dao.entities.ComponentModel;
 import nz.co.fit.projectmanagement.server.dao.entities.EpicModel;
 import nz.co.fit.projectmanagement.server.dao.entities.InitiativeModel;
+import nz.co.fit.projectmanagement.server.dao.entities.IssueStatusModel;
 import nz.co.fit.projectmanagement.server.dao.entities.ProjectCategoryModel;
 import nz.co.fit.projectmanagement.server.dao.entities.ProjectModel;
 import nz.co.fit.projectmanagement.server.dao.entities.RoleModel;
@@ -33,14 +33,15 @@ public class ProjectService extends CRUDLService<ProjectModel> {
 	private final ThemeService themeService;
 	private final InitiativeService initiativeService;
 	private final EpicService epicService;
+	private final IssueStatusService issueStatusService;
 
 	@Inject
 	public ProjectService(final ProjectDAO projectDAO, final VersionService versionService,
 			final ComponentService componentService, final ProjectCategoryService categoryService,
-			final UserService userService, final HistoryService historyService, final UserDAO userDAO,
-			final RoleService roleService, final ThemeService themeService, final InitiativeService initiativeService,
-			final EpicService epicService) {
-		super(projectDAO, historyService, userDAO);
+			final UserService userService, final RoleService roleService,
+			final ThemeService themeService, final InitiativeService initiativeService, final EpicService epicService,
+			final IssueStatusService issueStatusService) {
+		super(projectDAO);
 		this.versionService = versionService;
 		this.componentService = componentService;
 		this.categoryService = categoryService;
@@ -49,6 +50,7 @@ public class ProjectService extends CRUDLService<ProjectModel> {
 		this.themeService = themeService;
 		this.initiativeService = initiativeService;
 		this.epicService = epicService;
+		this.issueStatusService = issueStatusService;
 	}
 
 	@Override
@@ -69,45 +71,15 @@ public class ProjectService extends CRUDLService<ProjectModel> {
 	public ProjectModel update(final ProjectModel project) throws ServiceException {
 		if (!project.getVersions().isEmpty()) {
 			// some versions have been passed in, so make sure that they are upserted first.
-			project.getVersions().forEach(v -> {
-				try {
-					if (v.getId() != null) {
-						versionService.update(v);
-					} else {
-						versionService.create(v);
-					}
-				} catch (final ServiceException e) {
-					e.printStackTrace();
-				}
-			});
+			project.getVersions().forEach(new CreateOrUpdateConsumer<>(versionService));
 		}
 		if (!project.getComponents().isEmpty()) {
 			// some components have been passed in, so make sure that they are upserted first.
-			project.getComponents().forEach(c -> {
-				try {
-					if (c.getId() != null) {
-						componentService.update(c);
-					} else {
-						componentService.create(c);
-					}
-				} catch (final ServiceException e) {
-					e.printStackTrace();
-				}
-			});
+			project.getComponents().forEach(new CreateOrUpdateConsumer<>(componentService));
 		}
 		if (!project.getRoles().isEmpty()) {
 			// some components have been passed in, so make sure that they are upserted first.
-			project.getRoles().forEach(c -> {
-				try {
-					if (c.getId() != null) {
-						roleService.update(c);
-					} else {
-						roleService.create(c);
-					}
-				} catch (final ServiceException e) {
-					e.printStackTrace();
-				}
-			});
+			project.getRoles().forEach(new CreateOrUpdateConsumer<>(roleService));
 		}
 
 		// the data from the api will only be the id, so we need to read the whole object
@@ -127,27 +99,9 @@ public class ProjectService extends CRUDLService<ProjectModel> {
 	public void delete(final Long id) throws ServiceException {
 		final ProjectModel existingProject = read(id);
 		// delete the versions, components
-		existingProject.getVersions().forEach(v -> {
-			try {
-				versionService.delete(v.getId());
-			} catch (final ServiceException e2) {
-				e2.printStackTrace();
-			}
-		});
-		existingProject.getComponents().forEach(c -> {
-			try {
-				componentService.delete(c.getId());
-			} catch (final ServiceException e1) {
-				e1.printStackTrace();
-			}
-		});
-		existingProject.getRoles().forEach(c -> {
-			try {
-				roleService.delete(c.getId());
-			} catch (final ServiceException e1) {
-				e1.printStackTrace();
-			}
-		});
+		existingProject.getVersions().forEach(new DeleteConsumer<>(versionService));
+		existingProject.getComponents().forEach(new DeleteConsumer<>(componentService));
+		existingProject.getRoles().forEach(new DeleteConsumer<>(roleService));
 
 		super.delete(id);
 	}
@@ -254,5 +208,21 @@ public class ProjectService extends CRUDLService<ProjectModel> {
 		final EpicModel createEpic = epicService.create(epic);
 		update(projModel);
 		return createEpic;
+	}
+
+	public IssueStatusModel addIssueStatusToProject(final Long projectId, final IssueStatusModel issueStatus)
+			throws ServiceException {
+		final ProjectModel projModel = read(projectId);
+		final List<IssueStatusModel> issueStatuses = projModel.getStatuses();
+		final long matchingName = issueStatuses.stream().filter(v -> v.getName().equals(issueStatus.getName())).count();
+		if (matchingName > 0) {
+			throw new ServiceException(
+					"There is already an Issue Status '" + issueStatus.getName() + "' for this project.");
+		}
+
+		issueStatuses.add(issueStatus);
+		final IssueStatusModel createComponent = issueStatusService.create(issueStatus);
+		update(projModel);
+		return createComponent;
 	}
 }

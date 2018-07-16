@@ -16,8 +16,8 @@ import nz.co.fit.projectmanagement.server.dao.entities.UserModel;
 @Service
 public class UserService extends CRUDLService<UserModel> {
 	@Inject
-	public UserService(final UserDAO userDAO, final HistoryService historyService) {
-		super(userDAO, historyService, userDAO);
+	public UserService(final UserDAO userDAO) {
+		super(userDAO);
 	}
 
 	@Override

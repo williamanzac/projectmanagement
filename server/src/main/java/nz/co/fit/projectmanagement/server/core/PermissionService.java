@@ -5,14 +5,12 @@ import javax.inject.Inject;
 import org.jvnet.hk2.annotations.Service;
 
 import nz.co.fit.projectmanagement.server.dao.PermissionsDAO;
-import nz.co.fit.projectmanagement.server.dao.UserDAO;
 import nz.co.fit.projectmanagement.server.dao.entities.PermissionModel;
 
 @Service
 public class PermissionService extends CRUDLService<PermissionModel> {
 	@Inject
-	public PermissionService(final PermissionsDAO permissionsDAO, final HistoryService historyService,
-			final UserDAO userDAO) {
-		super(permissionsDAO, historyService, userDAO);
+	public PermissionService(final PermissionsDAO permissionsDAO) {
+		super(permissionsDAO);
 	}
 }

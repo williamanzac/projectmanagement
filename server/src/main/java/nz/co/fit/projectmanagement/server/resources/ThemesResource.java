@@ -13,26 +13,26 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
 import nz.co.fit.projectmanagement.server.api.BaseIdable;
-import nz.co.fit.projectmanagement.server.api.Epic;
-import nz.co.fit.projectmanagement.server.core.EpicService;
+import nz.co.fit.projectmanagement.server.api.Theme;
 import nz.co.fit.projectmanagement.server.core.HistoryService;
-import nz.co.fit.projectmanagement.server.dao.entities.EpicModel;
+import nz.co.fit.projectmanagement.server.core.ThemeService;
+import nz.co.fit.projectmanagement.server.dao.entities.ThemeModel;
 
-@Path("/epics")
+@Path("/themes")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 @PermitAll
-public class EpicResource extends CRUDLResource<Epic, EpicModel> {
+public class ThemesResource extends CRUDLResource<Theme, ThemeModel> {
 
 	@Inject
-	public EpicResource(final EpicService componentService, final HistoryService historyService) {
+	public ThemesResource(final ThemeService componentService, final HistoryService historyService) {
 		super(componentService, historyService);
 	}
 
 	@POST
 	@DenyAll
 	@Override
-	public Epic create(final Epic value) throws ResourceException {
+	public Theme create(final Theme value) throws ResourceException {
 		// components should be created via the project resource
 		return null;
 	}

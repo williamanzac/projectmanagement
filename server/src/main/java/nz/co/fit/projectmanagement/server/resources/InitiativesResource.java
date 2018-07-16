@@ -13,26 +13,26 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
 import nz.co.fit.projectmanagement.server.api.BaseIdable;
-import nz.co.fit.projectmanagement.server.api.Theme;
+import nz.co.fit.projectmanagement.server.api.Initiative;
 import nz.co.fit.projectmanagement.server.core.HistoryService;
-import nz.co.fit.projectmanagement.server.core.ThemeService;
-import nz.co.fit.projectmanagement.server.dao.entities.ThemeModel;
+import nz.co.fit.projectmanagement.server.core.InitiativeService;
+import nz.co.fit.projectmanagement.server.dao.entities.InitiativeModel;
 
-@Path("/themes")
+@Path("/initiatives")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 @PermitAll
-public class ThemeResource extends CRUDLResource<Theme, ThemeModel> {
+public class InitiativesResource extends CRUDLResource<Initiative, InitiativeModel> {
 
 	@Inject
-	public ThemeResource(final ThemeService componentService, final HistoryService historyService) {
+	public InitiativesResource(final InitiativeService componentService, final HistoryService historyService) {
 		super(componentService, historyService);
 	}
 
 	@POST
 	@DenyAll
 	@Override
-	public Theme create(final Theme value) throws ResourceException {
+	public Initiative create(final Initiative value) throws ResourceException {
 		// components should be created via the project resource
 		return null;
 	}

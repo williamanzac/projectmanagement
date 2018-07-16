@@ -8,7 +8,6 @@ import org.jvnet.hk2.annotations.Service;
 
 import nz.co.fit.projectmanagement.server.dao.DAOException;
 import nz.co.fit.projectmanagement.server.dao.RoleDAO;
-import nz.co.fit.projectmanagement.server.dao.UserDAO;
 import nz.co.fit.projectmanagement.server.dao.entities.GroupModel;
 import nz.co.fit.projectmanagement.server.dao.entities.RoleModel;
 import nz.co.fit.projectmanagement.server.dao.entities.UserModel;
@@ -20,9 +19,9 @@ public class RoleService extends CRUDLService<RoleModel> {
 	private final GroupService groupService;
 
 	@Inject
-	public RoleService(final RoleDAO permissionsDAO, final HistoryService historyService, final UserDAO userDAO,
+	public RoleService(final RoleDAO permissionsDAO,
 			final UserService userService, final GroupService groupService) {
-		super(permissionsDAO, historyService, userDAO);
+		super(permissionsDAO);
 		this.userService = userService;
 		this.groupService = groupService;
 	}

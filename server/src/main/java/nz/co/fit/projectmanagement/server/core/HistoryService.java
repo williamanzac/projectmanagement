@@ -48,10 +48,6 @@ public class HistoryService {
 		}
 	}
 
-	public <E extends IdableModel> void deleteHistoryForObject(final Long objectId, final Class<E> entityClass) {
-		dao.deleteHistoryForObject(objectId, entityClass);
-	}
-
 	public <E extends IdableModel> List<HistoryModel> historyForObject(final Long id, final Class<E> entityClass) {
 		return dao.historyForObject(id, entityClass);
 	}
